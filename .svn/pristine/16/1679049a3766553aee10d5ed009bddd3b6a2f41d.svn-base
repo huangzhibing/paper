@@ -1,0 +1,109 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.mypanel.expertinfomanage.web;
+
+import com.google.common.collect.Lists;
+import com.hqu.modules.common.service.CommonService;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.service.ExpertService;
+import com.jeeplus.common.beanvalidator.BeanValidators;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.modules.sys.entity.Office;
+import com.jeeplus.modules.sys.entity.Role;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.mapper.UserMapper;
+import com.jeeplus.modules.sys.service.SystemService;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 专家信息修改Controller
+ * @author 黄志兵
+ * @version 2018-08-28
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/expertinfo/expertInfo")
+public class ExpertInfoController extends BaseController {
+
+	@Autowired
+	private ExpertService expertService;
+
+	@Autowired
+	private CommonService commonService;
+
+	@Autowired
+	private SystemService systemService;
+
+	@Autowired
+	private UserMapper userMapper;
+	
+	@ModelAttribute
+	public Expert get(@RequestParam(required=false) String id) {
+		Expert entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = expertService.get(id);
+		}
+		if (entity == null){
+			entity = new Expert();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 专家个人信息修改页面
+	 */
+	@RequiresPermissions("expertinfo:expertInfo:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(Expert expert, Model model) {
+		expert = expertService.get(UserUtils.getUser().getLoginName());
+		model.addAttribute("expert", expert);
+		return "modules/sys/user/expertInfo";
+	}
+
+	/**
+	 * 保存专家信息表
+	 */
+	@ResponseBody
+	@RequestMapping(value = "save")
+	public AjaxJson save(Expert expert, Model model) throws Exception{
+
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(expert);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+
+		expertService.save(expert);
+		j.setSuccess(true);
+		j.setMsg("修改个人资料成功");
+
+		return j;
+	}
+
+}

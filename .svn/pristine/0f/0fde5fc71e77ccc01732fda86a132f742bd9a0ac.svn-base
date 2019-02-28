@@ -1,0 +1,42 @@
+package com.hqu.modules.craw.task.service;
+
+import com.alibaba.fastjson.JSON;
+import com.hqu.modules.common.util.RedisUtil;
+import com.hqu.modules.craw.task.entity.Task;
+import com.jeeplus.common.utils.IdGen;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+@Service
+public class CrawTaskService {
+    private static final String TASK = "CRAW_TASK";
+    public String save(Task task) {
+            RedisUtil.put(TASK,task.getId(), JSON.toJSON(task));
+            return task.getId();
+    }
+
+    public List<Task> getAllTask() {
+        Collection<String> keys = RedisUtil.getAll(TASK);
+        List<Task> tasks = new ArrayList<>();
+        for(String s : keys) {
+            tasks.add(get(s));
+        }
+        return  tasks;
+    }
+
+    public Task get(String uuid)  {
+        Object task = RedisUtil.get(TASK,uuid);
+        if(task == null) {
+            return null;
+        }
+        return JSON.parseObject(RedisUtil.get(TASK,uuid).toString(),Task.class);
+    }
+
+    public void del(String uuid) {
+        RedisUtil.remove(TASK,uuid);
+    }
+}

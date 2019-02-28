@@ -1,0 +1,237 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.craw.craw.web;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import com.hqu.modules.craw.craw.core.CrawCore;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.hqu.modules.craw.craw.entity.CrawTask;
+import com.hqu.modules.craw.craw.service.CrawTaskService;
+import us.codecraft.webmagic.Spider;
+
+/**
+ * 爬虫任务Controller
+ * @author M1ngz
+ * @version 2018-08-19
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/craw/crawTask")
+public class CrawTaskController extends BaseController {
+
+	@Autowired
+	private CrawTaskService crawTaskService;
+	
+	@ModelAttribute
+	public CrawTask get(@RequestParam(required=false) String id) {
+		CrawTask entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = crawTaskService.get(id);
+		}
+		if (entity == null){
+			entity = new CrawTask();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 爬虫任务列表页面
+	 */
+	@RequiresPermissions("craw:crawTask:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(CrawTask crawTask, Model model) {
+		model.addAttribute("crawTask", crawTask);
+		return "craw/craw/crawTaskList";
+	}
+	
+		/**
+	 * 爬虫任务列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(CrawTask crawTask, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<CrawTask> page = crawTaskService.findPage(new Page<CrawTask>(request, response), crawTask); 
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 查看，增加，编辑爬虫任务表单页面
+	 */
+	@RequiresPermissions(value={"craw:crawTask:view","craw:crawTask:add","craw:crawTask:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form")
+	public String form(CrawTask crawTask, Model model) {
+		model.addAttribute("crawTask", crawTask);
+		return "craw/craw/crawTaskForm";
+	}
+
+	/**
+	 * 保存爬虫任务
+	 */
+	@ResponseBody
+	@RequiresPermissions(value={"craw:crawTask:add","craw:crawTask:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public AjaxJson save(CrawTask crawTask, Model model) throws Exception{
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(crawTask);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+		crawTask.setXpath(crawTask.getXpath().replace("&quot;","\'"));
+		//新增或编辑表单保存
+		crawTaskService.save(crawTask);//保存
+		String[] names = crawTask.getName().split(";");
+
+		String[] xpaths = crawTask.getXpath().split(";");
+		Map<String,String > map = new HashMap<>(names.length);
+		for (int i = 0; i < names.length; i++) {
+			map.put(names[i],xpaths[i]);
+		}
+		crawTask.setMap(map);
+
+		Spider.create(new CrawCore(crawTask)).addUrl("http://www.cs.zju.edu.cn/chinese/redir.php?catalog_id=101553").thread(5).start();
+		j.setSuccess(true);
+		j.setMsg("保存爬虫任务成功");
+		return j;
+	}
+	
+	/**
+	 * 删除爬虫任务
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:del")
+	@RequestMapping(value = "delete")
+	public AjaxJson delete(CrawTask crawTask) {
+		AjaxJson j = new AjaxJson();
+		crawTaskService.delete(crawTask);
+		j.setMsg("删除爬虫任务成功");
+		return j;
+	}
+	
+	/**
+	 * 批量删除爬虫任务
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:del")
+	@RequestMapping(value = "deleteAll")
+	public AjaxJson deleteAll(String ids) {
+		AjaxJson j = new AjaxJson();
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			crawTaskService.delete(crawTaskService.get(id));
+		}
+		j.setMsg("删除爬虫任务成功");
+		return j;
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:export")
+    @RequestMapping(value = "export")
+    public AjaxJson exportFile(CrawTask crawTask, HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "爬虫任务"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<CrawTask> page = crawTaskService.findPage(new Page<CrawTask>(request, response, -1), crawTask);
+    		new ExportExcel("爬虫任务", CrawTask.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出爬虫任务记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:import")
+    @RequestMapping(value = "import")
+   	public AjaxJson importFile(@RequestParam("file")MultipartFile file, HttpServletResponse response, HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<CrawTask> list = ei.getDataList(CrawTask.class);
+			for (CrawTask crawTask : list){
+				try{
+					crawTaskService.save(crawTask);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条爬虫任务记录。");
+			}
+			j.setMsg( "已成功导入 "+successNum+" 条爬虫任务记录"+failureMsg);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导入爬虫任务失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+	
+	/**
+	 * 下载导入爬虫任务数据模板
+	 */
+	@ResponseBody
+	@RequiresPermissions("craw:crawTask:import")
+    @RequestMapping(value = "import/template")
+     public AjaxJson importFileTemplate(HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "爬虫任务数据导入模板.xlsx";
+    		List<CrawTask> list = Lists.newArrayList(); 
+    		new ExportExcel("爬虫任务数据", CrawTask.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg( "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+
+}

@@ -1,0 +1,187 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.papereview.order.service;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import com.hqu.modules.basedata.costc.entity.Costc;
+import com.hqu.modules.basedata.costc.mapper.CostcMapper;
+import com.hqu.modules.basedata.studentmanage.entity.StudentManage;
+import com.hqu.modules.basedata.studentmanage.mapper.StudentManageMapper;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.mapper.ExpertMapper;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.mapper.PaperMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.mapper.OrderMapper;
+
+/**
+ * 订单Service
+ * @author hzm
+ * @version 2018-09-01
+ */
+@Service
+@Transactional(readOnly = true)
+public class OrderService extends CrudService<OrderMapper, Order> {
+
+	@Autowired
+	OrderMapper orderMapper;
+	@Autowired
+	ExpertMapper expertMapper;
+	@Autowired
+	StudentManageMapper studentManageMapper;
+	@Autowired
+	PaperMapper paperMapper;
+	@Autowired
+	CostcMapper costcMapper;
+
+	public Order get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Order> findList(Order order) {
+		return super.findList(order);
+	}
+	
+	public Page<Order> findPage(Page<Order> page, Order order) {
+		return super.findPage(page, order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Order order) {
+		super.save(order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Order order) {
+		super.delete(order);
+	}
+
+	@Transactional (readOnly = false,rollbackFor = Exception.class)
+	public void distribution(String i, Random random, SimpleDateFormat sdf, HashSet<String> hashSet)throws Exception{
+		Order order = new Order();
+		//完善订单信息
+		String num = Integer.toString(random.nextInt(10000));
+		order.setDdh(sdf.format(new Date()) + num);
+		order.setXdrq(new Date());
+		//自动生成提起码
+		if (order.getDdh() != null) {
+			order.setTqm(order.getDdh().substring(order.getDdh().length() - 6, order.getDdh().length()));
+		}
+		//订单论文信息
+		Paper paper = paperMapper.get(i);
+		if(paper.getXSXH()==null||paper.getXSXH().getSpecialityManage()==null||paper.getXSXH().getSpecialityManage().getZydm()==null){//专业为空
+			throw new Exception("专业为空");
+		}
+		order.setLw(paper);
+		if(studentManageMapper.findList(paper.getXSXH()).size()!=1) throw new Exception();
+		List<StudentManage> students=studentManageMapper.findList(paper.getXSXH());
+		order.setKhxm(students.get(0).getXsxm());
+		order.setYddh(students.get(0).getYddh());
+		//筛选专家
+		Expert expert = new Expert();
+		expert.setZJZTDM("0");
+		expert.getSpecialityManage().setZydm(paper.getXSXH().getSpecialityManage().getZydm());
+		expert.getPage().setOrderBy("pscs desc");
+		List<Expert> experts = expertMapper.findList(expert);
+		expert=random(experts,hashSet);
+		order.setQydm(expert.getQYDM());
+		order.setPszj(expert);
+		//添加费用
+		Costc costc = new Costc();
+		costc.setUniversity(order.getLw().getXSXH().getUniversity());
+		costc.setSpecialityManage(order.getLw().getXSXH().getSpecialityManage());
+		if(costcMapper.findList(costc).size()!=1) throw new Exception();
+		order.setZj(costcMapper.findList(costc).get(0).getPsfy().doubleValue());
+		//生成订单
+		order.setDdztdm("a");
+		order.setDdlxdm("0");
+		//保存订单
+		if("c".equals(paper.getLWZTDM())){
+			Order o=new Order();
+			o.setLw(paper);
+			o=orderMapper.findList(o).get(0);
+			o.setPszj(expert);
+			o.preUpdate();
+			orderMapper.update(o);
+		}else{
+			order.preInsert();
+			orderMapper.insert(order);
+		}
+		expert.preUpdate();
+		expertMapper.update(expert);
+		//修改状态
+		paper.setLWZTDM("c");
+		paper.preUpdate();
+		paperMapper.update(paper);
+	}
+	@Transactional(readOnly = false,rollbackFor = Exception.class)
+	public void trySave(Paper paper,Expert expert,Order order)throws Exception{
+		if ("c".equals(paper.getLWZTDM())) {
+			Order o = new Order();
+			o.setLw(paper);
+			o = orderMapper.findList(o).get(0);
+			o.setPszj(expert);
+			o.preUpdate();
+			orderMapper.update(o);
+		} else {
+			order.setLw(paper);
+			List<StudentManage> students = studentManageMapper.findList(paper.getXSXH());
+			if (students.size()!=1) throw new Exception();
+			order.setKhxm(students.get(0).getXsxm());
+			order.setYddh(students.get(0).getYddh());
+			//添加费用
+			Costc costc = new Costc();
+			costc.setUniversity(order.getLw().getXSXH().getUniversity());
+			costc.setSpecialityManage(order.getLw().getXSXH().getSpecialityManage());
+			if(costcMapper.findList(costc).size()!=1) throw new Exception();
+			order.setZj(costcMapper.findList(costc).get(0).getPsfy().doubleValue());
+			//新增或编辑表单保存
+			order.setDdztdm("a");
+			order.setDdlxdm("0");
+			order.preInsert();
+			orderMapper.insert(order);//保存
+			//修改论文状态
+			paper.setLWZTDM("c");
+			paper.preUpdate();
+			paperMapper.update(paper);
+		}
+	}
+
+	/**
+	 * 加权随机
+	 */
+	private Expert random(List<Expert> experts,HashSet<String> hashSet){
+		int max=experts.get(0).getPscs();
+		int total=0;
+		for(Expert expert:experts){
+			expert.setPscs(max-expert.getPscs()+1);//权值最低为1
+			total+=expert.getPscs();
+		}
+		Random random=new Random();
+		int ram=random.nextInt(total);
+		int flag=0;
+		for (Expert expert:experts){
+			flag+=expert.getPscs();
+			if(flag>ram &&!hashSet.contains(expert.getId())){
+				hashSet.add(expert.getId());
+				return expert;
+			}
+		}
+		return null;
+	}
+
+	public int getOrderByDate(Map<String,Object> map){
+		int num = orderMapper.getOrderByDate(map);
+		return num;
+	}
+	
+}

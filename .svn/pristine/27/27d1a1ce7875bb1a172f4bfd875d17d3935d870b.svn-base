@@ -1,0 +1,268 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.customermanage.expertmanagement.web;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import com.hqu.modules.common.service.CommonService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.service.ExpertService;
+
+/**
+ * 专家信息表Controller
+ * @author 黄志兵
+ * @version 2018-08-28
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/expertmanagement/expert")
+public class ExpertController extends BaseController {
+
+	@Autowired
+	private ExpertService expertService;
+
+	@Autowired
+	private CommonService commonService;
+	
+	@ModelAttribute
+	public Expert get(@RequestParam(required=false) String id) {
+		Expert entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = expertService.get(id);
+		}
+		if (entity == null){
+			entity = new Expert();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 专家信息表列表页面
+	 */
+	@RequiresPermissions("expertmanagement:expert:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(Expert expert, Model model) {
+		model.addAttribute("expert", expert);
+		return "customermanage/expertmanagement/expertList";
+	}
+	
+		/**
+	 * 专家信息表列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(Expert expert, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<Expert> page = expertService.findPage(new Page<Expert>(request, response), expert); 
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 查看，增加，编辑专家信息表表单页面
+	 */
+	@RequiresPermissions(value={"expertmanagement:expert:view","expertmanagement:expert:add","expertmanagement:expert:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form/{mode}")
+	public String form(@PathVariable String mode, Expert expert, Model model) {
+		model.addAttribute("expert", expert);
+		model.addAttribute("mode", mode);
+		return "customermanage/expertmanagement/expertForm";
+	}
+
+	/**
+	 * 保存专家信息表
+	 */
+	@ResponseBody
+	@RequiresPermissions(value={"expertmanagement:expert:add","expertmanagement:expert:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public AjaxJson save(Expert expert, Model model) throws Exception{
+
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(expert);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+		//新增或编辑表单保存
+        if(checkOnly(expert,"t_expert","yhzh")) {
+            expertService.save(expert);//保存
+			j.setSuccess(true);
+			j.setMsg("保存专家信息表成功");
+        }
+        else {
+			j.setSuccess(false);
+			j.setMsg("用户账号已存在！");
+		}
+
+		return j;
+	}
+
+	public boolean checkOnly(Expert expert,String tableName,String filedName){
+
+		Expert existexpert = expertService.get(expert.getId());
+
+		if(existexpert != null){
+			if(existexpert.getYHZH().equals(expert.getYHZH())) {
+				return true;
+			}
+			else{
+				boolean statement1 = commonService.checkOnly(tableName, filedName, expert.getYHZH());
+				if (statement1) {
+					logger.debug("编码已存在");
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}
+		else {
+			boolean statement1 = commonService.checkOnly(tableName, filedName, expert.getYHZH());
+			if (statement1) {
+				logger.debug("编码已存在");
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+	
+	/**
+	 * 删除专家信息表
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:del")
+	@RequestMapping(value = "delete")
+	public AjaxJson delete(Expert expert) {
+		AjaxJson j = new AjaxJson();
+		expertService.delete(expert);
+		j.setMsg("删除专家信息表成功");
+		return j;
+	}
+	
+	/**
+	 * 批量删除专家信息表
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:del")
+	@RequestMapping(value = "deleteAll")
+	public AjaxJson deleteAll(String ids) {
+		AjaxJson j = new AjaxJson();
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			expertService.delete(expertService.get(id));
+		}
+		j.setMsg("删除专家信息表成功");
+		return j;
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:export")
+    @RequestMapping(value = "export")
+    public AjaxJson exportFile(Expert expert, HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "专家信息表"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Expert> page = expertService.findPage(new Page<Expert>(request, response, -1), expert);
+    		new ExportExcel("专家信息表", Expert.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出专家信息表记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:import")
+    @RequestMapping(value = "import")
+   	public AjaxJson importFile(@RequestParam("file")MultipartFile file, HttpServletResponse response, HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<Expert> list = ei.getDataList(Expert.class);
+			for (Expert expert : list){
+				try{
+					expertService.save(expert);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条专家信息表记录。");
+			}
+			j.setMsg( "已成功导入 "+successNum+" 条专家信息表记录"+failureMsg);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导入专家信息表失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+	
+	/**
+	 * 下载导入专家信息表数据模板
+	 */
+	@ResponseBody
+	@RequiresPermissions("expertmanagement:expert:import")
+    @RequestMapping(value = "import/template")
+     public AjaxJson importFileTemplate(HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "专家信息表数据导入模板.xlsx";
+    		List<Expert> list = Lists.newArrayList(); 
+    		new ExportExcel("专家信息表数据", Expert.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg( "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+
+}

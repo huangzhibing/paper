@@ -1,0 +1,74 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.universitypaymentmanager.receives.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.jeeplus.common.utils.StringUtils;
+import com.hqu.modules.universitypaymentmanager.receives.entity.Receives;
+import com.hqu.modules.universitypaymentmanager.receives.mapper.ReceivesMapper;
+import com.hqu.modules.universitypaymentmanager.receives.entity.Papers;
+import com.hqu.modules.universitypaymentmanager.receives.mapper.PapersMapper;
+
+/**
+ * 订单管理Service
+ * @author ylf
+ * @version 2018-10-04
+ */
+@Service
+@Transactional(readOnly = true)
+public class ReceivesService extends CrudService<ReceivesMapper, Receives> {
+
+	@Autowired
+	private PapersMapper papersMapper;
+	
+	public Receives get(String id) {
+		Receives receives = super.get(id);
+		receives.setPapersList(papersMapper.findList(new Papers(receives)));
+		return receives;
+	}
+	
+	public List<Receives> findList(Receives receives) {
+		return super.findList(receives);
+	}
+	
+	public Page<Receives> findPage(Page<Receives> page, Receives receives) {
+		return super.findPage(page, receives);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Receives receives) {
+		super.save(receives);
+		for (Papers papers : receives.getPapersList()){
+			if (papers.getId() == null){
+				continue;
+			}
+			if (Papers.DEL_FLAG_NORMAL.equals(papers.getDelFlag())){
+				if (StringUtils.isBlank(papers.getId())){
+					papers.setReceives(receives);
+					papers.preInsert();
+					papersMapper.insert(papers);
+				}else{
+					papers.preUpdate();
+					papersMapper.update(papers);
+				}
+			}else{
+				papersMapper.delete(papers);
+			}
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Receives receives) {
+		super.delete(receives);
+		papersMapper.delete(new Papers(receives));
+	}
+	
+}

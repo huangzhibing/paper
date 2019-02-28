@@ -1,0 +1,48 @@
+package com.hqu.modules.craw.core;
+
+import com.hqu.modules.craw.core.Core;
+import com.hqu.modules.craw.core.entity.MetaType;
+import com.hqu.modules.craw.core.entity.TargetData;
+import com.hqu.modules.craw.core.entity.TargetURL;
+import com.hqu.modules.craw.task.entity.Task;
+import com.hqu.modules.craw.util.CrawUtils;
+import us.codecraft.webmagic.Page;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SimpleCore implements Core {
+
+    @Override
+    public List<String> getTargetUrl(Task task, Page page) {
+        List<String> targetList = new ArrayList<>();
+        for(TargetURL targetURL : task.getTargetURLList()) {
+            if(MetaType.XPATH.equals(targetURL.getMetaType())) {
+                List<String> urls = page.getHtml().xpath(targetURL.getValue()).all();
+                targetList.addAll(urls);
+                task.setTotalUrlSize(task.getTotalUrlSize() + urls.size());
+            } else if(MetaType.REGEX.equals(targetURL.getMetaType())){
+                List<String> temp = page.getHtml().regex(targetURL.getValue()).all();
+                targetList.addAll(CrawUtils.handleAndSymbol(temp));
+                task.setTotalUrlSize(task.getTotalUrlSize() + temp.size());
+            } else if(MetaType.JSOUP.equals(targetURL.getMetaType())) {
+            }
+        }
+        return targetList;
+    }
+
+    @Override
+    public void getTargetData(Task task, Page page) {
+        for(TargetData targetData : task.getTargetDataList()) {
+            if(MetaType.XPATH.equals(targetData.getMetaType())) {
+                page.putField(targetData.getName(),page.getHtml().xpath(targetData.getValue()));
+            } else if(MetaType.REGEX.equals(targetData.getMetaType())){
+                page.putField(targetData.getName(),page.getHtml().regex(targetData.getValue()));
+            } else if(MetaType.JSOUP.equals(targetData.getMetaType())) {
+
+            }
+        }
+    }
+
+
+}

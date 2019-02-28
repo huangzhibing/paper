@@ -1,0 +1,22 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.basedata.university.mapper;
+
+import com.jeeplus.core.persistence.BaseMapper;
+import com.jeeplus.core.persistence.annotation.MyBatisMapper;
+import com.hqu.modules.basedata.university.entity.University;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 高校代码表MAPPER接口
+ * @author wdz
+ * @version 2018-12-17
+ */
+@MyBatisMapper
+public interface UniversityMapper extends BaseMapper<University> {
+    List<Map<String,String>> universityMap();
+    public List<University> selectAll_University();
+}

@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.customermanage.ordermanage.mapper.OrderManageMapper">
+
+	<sql id="orderManageColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ddh AS "ddh",
+		a.xdrq AS "xdrq",
+		a.yysj AS "yysj",
+		a.ddlxdm AS "ddlxdm",
+		a.zj AS "zj",
+		a.fksj AS "fksj",
+		a.khxm AS "khxm",
+		a.yddh AS "yddh",
+		a.sqtksj AS "sqtksj",
+		a.tkly AS "tkly",
+		a.tkshjg AS "tkshjg",
+		a.yhpj AS "yhpj",
+		a.pjxq AS "pjxq.YHZH",
+		a.ddztdm AS "ddztdm",
+		a.qydm AS "qydm",
+		a.pszj AS "pszj.YHZH",
+		a.note AS "note",
+		a.lw AS "lw.LWBH",
+		a.tqm AS "tqm",
+		pszj.zjxm AS "pszj.ZJXM",
+		lw.lwmc AS "lw.LWMC",
+		lw.lwlxdm AS "lw.LWLXDM",
+		lw.lwwj AS "lw.LWWJ",
+		pszj.dzyx AS "pszj.DZYX",
+		pszj.lxdh AS "pszj.LXDH"
+	</sql>
+
+	<sql id="orderManageJoins">
+		LEFT JOIN t_paper lw ON lw.lwbh = a.lw
+		LEFT JOIN t_expert pszj ON pszj.yhzh = a.pszj
+	</sql>
+
+
+	<select id="get" resultType="OrderManage" >
+		SELECT
+			<include refid="orderManageColumns"/>
+		FROM t_order a
+		<include refid="orderManageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="OrderManage" >
+		SELECT
+			<include refid="orderManageColumns"/>
+		FROM t_order a
+		<include refid="orderManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ddh != null and ddh != ''">
+				AND a.ddh LIKE
+				<if test="dbName == 'oracle'">'%'||#{ddh}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ddh}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ddh},'%')</if>
+			</if>
+			<if test="xdrq != null and xdrq != ''">
+				AND a.xdrq LIKE
+				<if test="dbName == 'oracle'">'%'||#{xdrq}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{xdrq}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{xdrq},'%')</if>
+			</if>
+			<if test="yysj != null and yysj != ''">
+				AND a.yysj LIKE
+				<if test="dbName == 'oracle'">'%'||#{yysj}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{yysj}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{yysj},'%')</if>
+			</if>
+			<if test="ddlxdm != null and ddlxdm != ''">
+				AND a.ddlxdm = #{ddlxdm}
+			</if>
+			<if test="zj != null and zj != ''">
+				AND a.zj LIKE
+				<if test="dbName == 'oracle'">'%'||#{zj}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{zj}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{zj},'%')</if>
+			</if>
+			<if test="fksj != null and fksj != ''">
+				AND a.fksj LIKE
+				<if test="dbName == 'oracle'">'%'||#{fksj}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{fksj}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{fksj},'%')</if>
+			</if>
+			<if test="khxm != null and khxm != ''">
+				AND a.khxm LIKE
+				<if test="dbName == 'oracle'">'%'||#{khxm}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{khxm}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{khxm},'%')</if>
+			</if>
+			<if test="yddh != null and yddh != ''">
+				AND a.yddh LIKE
+				<if test="dbName == 'oracle'">'%'||#{yddh}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{yddh}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{yddh},'%')</if>
+			</if>
+			<if test="sqtksj != null and sqtksj != ''">
+				AND a.sqtksj LIKE
+				<if test="dbName == 'oracle'">'%'||#{sqtksj}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{sqtksj}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{sqtksj},'%')</if>
+			</if>
+			<if test="tkshjg != null and tkshjg != ''">
+				AND a.tkshjg = #{tkshjg}
+			</if>
+			<if test="yhpj != null and yhpj != ''">
+				AND a.yhpj = #{yhpj}
+			</if>
+			<if test="ddztdm != null and ddztdm != ''">
+				AND a.ddztdm = #{ddztdm}
+			</if>
+			<if test="qydm != null and qydm.code != null and qydm.code != ''">
+				AND a.qydm = #{qydm.code}
+			</if>
+			<if test="pszj != null and pszj.YHZH != null and pszj.YHZH != ''">
+				AND a.pszj = #{pszj.YHZH}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO t_order(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ddh,
+			xdrq,
+			yysj,
+			ddlxdm,
+			zj,
+			fksj,
+			khxm,
+			yddh,
+			sqtksj,
+			tkly,
+			tkshjg,
+			yhpj,
+			pjxq,
+			ddztdm,
+			qydm,
+			pszj,
+			note,
+			lw,
+			tqm
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ddh},
+			#{xdrq},
+			#{yysj},
+			#{ddlxdm},
+			#{zj},
+			#{fksj},
+			#{khxm},
+			#{yddh},
+			#{sqtksj},
+			#{tkly},
+			#{tkshjg},
+			#{yhpj},
+			#{pjxq},
+			#{ddztdm},
+			#{qydm.code},
+			#{pszj},
+			#{note},
+			#{lw.LWBH},
+			#{tqm}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE t_order SET
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ddh = #{ddh},
+			xdrq = #{xdrq},
+			yysj = #{yysj},
+			ddlxdm = #{ddlxdm},
+			zj = #{zj},
+			fksj = #{fksj},
+			khxm = #{khxm},
+			yddh = #{yddh},
+			sqtksj = #{sqtksj},
+			tkly = #{tkly},
+			tkshjg = #{tkshjg},
+			yhpj = #{yhpj},
+			pjxq = #{pjxq},
+			ddztdm = #{ddztdm},
+			qydm = #{qydm.code},
+			pszj = #{pszj},
+			note = #{note},
+			lw=#{lw.LWBH},
+			tqm=#{tqm}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_order
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_order SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="OrderManage" statementType="STATEMENT">
+		select * FROM t_order  where ${propertyName} = '${value}'
+	</select>
+
+</mapper>

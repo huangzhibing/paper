@@ -1,0 +1,60 @@
+package com.hqu.modules.common.util;
+
+import net.oschina.j2cache.CacheObject;
+import net.oschina.j2cache.J2Cache;
+import net.oschina.j2cache.redis.RedisClient;
+import net.oschina.j2cache.redis.RedisHashCache;
+import net.oschina.j2cache.redis.RedisUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+
+@Component
+public class RedisUtil {
+    private Logger logger = LoggerFactory.getLogger(getClass());
+
+
+
+    /**
+     * 获取缓存
+     * @param key
+     * @return
+     */
+    public static Object get(String region, String key) {
+        CacheObject object = J2Cache.getChannel().get(region ,key);
+        return object==null?null:object.getValue();
+    }
+
+    public static Collection<String> getAll(String region) {
+        return J2Cache.getChannel().keys(region);
+    }
+
+
+
+
+    /**
+     * 写入缓存
+     * @param region
+     * @param key
+     * @param value
+     */
+    public static void put(String region, String key, Object value) {
+        J2Cache.getChannel().set(region, key, value);
+    }
+
+    /**
+     * 从缓存中移除
+     * @param region
+     * @param key
+     */
+    public static void remove(String region, String key) {
+        J2Cache.getChannel().evict(region, key);
+    }
+    public static void removeAll(String region) {
+        J2Cache.getChannel().evict(region,getAll(region).toArray(new String[0]));
+    }
+
+
+}

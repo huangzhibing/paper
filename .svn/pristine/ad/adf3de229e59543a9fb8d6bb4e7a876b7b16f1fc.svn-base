@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.positionmanagement.mapper.ProfessionalTechniqueRankMapper">
+    
+	<sql id="professionalTechniqueRankColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.zyjsjbdm AS "rankCode",
+		a.zyjsjbmc AS "rankName",
+		a.gwdj AS "rankTitle",
+		a.gjzyjsgwjb AS "rankSection"
+	</sql>
+	
+	<sql id="professionalTechniqueRankJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ProfessionalTechniqueRank" >
+		SELECT 
+			<include refid="professionalTechniqueRankColumns"/>
+		FROM t_professionaltechnical_c a
+		<include refid="professionalTechniqueRankJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProfessionalTechniqueRank" >
+		SELECT 
+			<include refid="professionalTechniqueRankColumns"/>
+		FROM t_professionaltechnical_c a
+		<include refid="professionalTechniqueRankJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="rankCode != null and rankCode != ''">
+				AND a.zyjsjbdm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rankCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rankCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rankCode},'%')</if>
+			</if>
+			<if test="rankName != null and rankName != ''">
+				AND a.zyjsjbmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rankName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rankName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rankName},'%')</if>
+			</if>
+			<if test="rankTitle != null and rankTitle != ''">
+				AND a.gwdj LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rankTitle}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rankTitle}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rankTitle},'%')</if>
+			</if>
+			<if test="rankSection != null and rankSection != ''">
+				AND a.gjzyjsgwjb LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rankSection}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rankSection}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rankSection},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProfessionalTechniqueRank" >
+		SELECT 
+			<include refid="professionalTechniqueRankColumns"/>
+		FROM t_professionaltechnical_c a
+		<include refid="professionalTechniqueRankJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_professionaltechnical_c(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			zyjsjbdm,
+			zyjsjbmc,
+			gwdj,
+			gjzyjsgwjb
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{rankCode},
+			#{rankName},
+			#{rankTitle},
+			#{rankSection}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_professionaltechnical_c SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			zyjsjbdm = #{rankCode},
+			zyjsjbmc = #{rankName},
+			gwdj = #{rankTitle},
+			gjzyjsgwjb = #{rankSection}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_professionaltechnical_c
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_professionaltechnical_c SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ProfessionalTechniqueRank" statementType="STATEMENT">
+		select * FROM t_professionaltechnical_c  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

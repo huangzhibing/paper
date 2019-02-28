@@ -1,0 +1,145 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp"%>
+<html>
+<head>
+<meta name="decorator" content="ani"/>
+<%@include file="/webpage/include/treeview.jsp" %>
+<%@ include file="/webpage/include/bootstraptable.jsp"%>
+ <script type="text/javascript">
+	 $(document).ready(function() {
+		$('#submitBtn').click(function(){
+		    var tqm = $('#tqm').val();
+		    var fileName = "/paper/userfiles/1/程序附件//papermanage/paper/2018/9/BB.docx";
+		    console.log(tqm);
+		    if(tqm.trim() == ""){
+		        layer.alert("提取码不能为空!");
+            }
+            else {
+		        jp.get("${ctx}/receive/receive/getOrder?accessCode="+tqm,function (data) {
+                    console.log(data);
+                    if(data.success){
+                        top.layer.open({
+                            type: 2,
+                            area: ['800px','500px'],
+                            title: "提取论文",
+                            auto: true,
+                            name: 'friend',
+                            content:'${ctx}/receive/receive/getPaperBytqm?tqm='+tqm,
+                            yse: function (index,layero) {
+
+                            },
+                            cancel: function(index){
+                            }
+                        });
+                    }else {
+                        layer.alert(data.msg);
+                    }
+                });
+            }
+		});
+         <%--$('#pickBillNames,#MyButton').click(function () {--%>
+             <%--$('tr td').remove();--%>
+             <%--top.layer.open({--%>
+                 <%--type: 2,--%>
+                 <%--area: ['800px', '500px'],--%>
+                 <%--title:"选择送货单",--%>
+                 <%--auto:true,--%>
+                 <%--name:'friend',--%>
+                 <%--content: "${ctx}/tag/gridselect?url="+encodeURIComponent("${ctx}/pickbill/pickBill/data?pbillStat=E")+"&fieldLabels="+encodeURIComponent("发货单号")+"&fieldKeys="+encodeURIComponent("pbillCode")+"&searchLabels="+encodeURIComponent("发货单号")+"&searchKeys="+encodeURIComponent("pbillCode")+"&isMultiSelected=false",--%>
+                 <%--btn: ['确定', '关闭'],--%>
+                 <%--yes: function(index, layero){--%>
+                     <%--var iframeWin = layero.find('iframe')[0].contentWindow; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();--%>
+                     <%--var items = iframeWin.getSelections();--%>
+                     <%--if(items == ""){--%>
+                         <%--jp.warning("必须选择一条数据!");--%>
+                         <%--return;--%>
+                     <%--}--%>
+                     <%--item = items[0];--%>
+                     <%--console.log(item);--%>
+                     <%--var test=jp.loading("正在录入");--%>
+                     <%--$('#pickBillId').val(item.id);--%>
+                     <%--$('#pickBillNames').val(item.pbillCode);--%>
+                     <%--// $('#wareId').val(item.ware.id);--%>
+                     <%--// $('#wareId').trigger('change');--%>
+                     <%--$("#accountId,#accountNames").val(item.rcvAccount.accountCode)--%>
+                     <%--$('#accountNamed').val(item.rcvAccountName)--%>
+                     <%--//$('#wareName').val(item.wareName);--%>
+                     <%--//$('#wareName').trigger('change');--%>
+                     <%--$('#rcvAddr').val(item.rcvAddr);--%>
+                     <%--$('#transAccount').val(item.transAccount);--%>
+                     <%--$.get("${ctx}/pickbill/pickBill/detail?id="+item.id, function(details){--%>
+                         <%--console.log(details);--%>
+                         <%--for(var i = 0;i < details.pickBillItemList.length;i++){--%>
+                             <%--detail=details.pickBillItemList[i];--%>
+                             <%--console.log(detail);--%>
+                             <%--try{--%>
+                                 <%--detail.id="";--%>
+                                 <%--detail.item=new Object();--%>
+                                 <%--detail.item.id = detail.prodCode.id;--%>
+                                 <%--if('item' in detail.prodCode){--%>
+                                     <%--detail.item.code = 'code' in detail.prodCode.item ? detail.prodCode.item.code : null;--%>
+                                 <%--}--%>
+                                 <%--detail.planPrice=detail.prodPrice;--%>
+                                 <%--detail.itemPrice=detail.prodPriceTaxed;--%>
+                                 <%--detail.itemName=detail.prodName;--%>
+                                 <%--detail.itemSpec=detail.prodSpec;--%>
+                                 <%--detail.itemQty=detail.pickQty;--%>
+                                 <%--detail.measUnit=detail.unitName;--%>
+                                 <%--addRow('#billDetailList',i,billDetailTpl,detail);--%>
+                                 <%--$('#billDetailList'+i+'_itemQty').trigger('onkeyup');--%>
+                                 <%--getInv(i);--%>
+                             <%--}catch(err){--%>
+                                 <%--console.log(err);--%>
+                             <%--}--%>
+                         <%--}--%>
+                     <%--});--%>
+                     <%--jp.close(test);--%>
+                     <%--top.layer.close(index);//关闭对话框。--%>
+                 <%--},--%>
+                 <%--cancel: function(index){--%>
+                 <%--}--%>
+             <%--});--%>
+         <%--});--%>
+     <%--});--%>
+
+	 });
+ </script>
+<title>接收论文</title>
+</head>
+<body>
+<div class="wrapper wrapper-content">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <a class="panelButton" href="${ctx}/receive/receive"><i class="ti-angle-left"></i> 返回</a>
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+        			<div class="col-sm-12 col-md-12 animated fadeInRight">
+                    <form:form id="inputForm" modelAttribute="receive" action="${ctx}/receive/receive/save" method="post" class="form-horizontal" onsubmit="return false">
+                        <form:hidden path="id"/>
+                        <sys:message content="${message}"/>
+                        <div class="form-group">
+                            <label style="font-size: 20px" class="col-sm-1 control-label"><font color="red">*</font>提取码：</label>
+                            <div class="col-sm-10">
+                                <input id="tqm" name="tqm" htmlEscape="false" size="40" class="required input-lg" type="text"/>
+                            </div>
+                        </div>
+                        </div>
+					<div class="col-lg-1"></div>
+			        <div class="col-lg-1">
+			             <div class="form-group text-center">
+			                 <div>
+			                     <button id="submitBtn"  class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交...">提取</button>
+			                 </div>
+			             </div>
+			        </div>
+			      </form:form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

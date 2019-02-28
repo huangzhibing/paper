@@ -1,0 +1,67 @@
+package com.hqu.modules.paperreceive.myaccount.web;
+
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.service.ExpertService;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.Date;
+import java.util.List;
+
+@Controller
+@RequestMapping(value = "${adminPath}/myaccount/myAccount")
+public class myAccountController {
+
+    @Autowired
+    ExpertService expertService;
+
+    @RequiresPermissions("myaccount:myAccount:list")
+    @RequestMapping(value = "")
+    public String list(Model model){
+        Expert expert = new Expert();
+        String loginName = UserUtils.getUser().getLoginName();
+        if("admin".equals(loginName)){
+            expert.setYHZH("admin");
+            expert.setZJXM("admin");
+            expert.setYE(999999.9);
+        }else {
+            expert.setYHZH(loginName);
+            expert = expertService.findList(expert).get(0);
+        }
+
+        model.addAttribute("expert",expert);
+        return "paperreceive/myaccount/myAccount";
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "save")
+    public AjaxJson save(String txje){
+        AjaxJson ajaxJson = new AjaxJson();
+        Expert expert = new Expert();
+        expert.setYHZH(UserUtils.getUser().getLoginName());
+        expert = expertService.findList(expert).get(0);
+
+        if(expert.getYE() == 0){
+            ajaxJson.setSuccess(false);
+            ajaxJson.setMsg("用户余额为零");
+        }
+        else if(expert.getYE() < Double.parseDouble(txje)){
+            ajaxJson.setSuccess(false);
+            ajaxJson.setMsg("用户余额不足");
+        }else {
+            Double nowMoney = expert.getYE()-Double.parseDouble(txje);
+            expert.setYE(nowMoney);
+            expertService.save(expert);
+            ajaxJson.setSuccess(true);
+            ajaxJson.setMsg("提现成功");
+        }
+        return ajaxJson;
+    }
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.common.mapper.CommonMapper">
+
+    <select id="checkOnly" resultType="String" statementType="STATEMENT">
+        select count(*) from ${tableName} WHERE ${filedName}=${filedValue}
+    </select>
+
+<!--    <select id="checkOnlyt" resultType="String" statementType="STATEMENT">
+        select count(*) from ${tableName} WHERE ${filedName1}=${filedValue1} AND ${filedName2}=${filedValue2}
+    </select>-->
+
+    <select id="getNumByDate" parameterType="java.util.Map" resultType="int" statementType="STATEMENT">
+        SELECT COUNT(*) FROM ${tableName}
+		WHERE ${filedName} &gt;= ${beginDate} and ${filedName} &lt; ${endDate}
+    </select>
+</mapper>

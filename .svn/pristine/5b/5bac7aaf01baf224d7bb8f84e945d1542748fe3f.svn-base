@@ -1,0 +1,285 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.paperreceive.receive.web;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.service.OrderService;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.aspectj.weaver.loadtime.Aj;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.hqu.modules.paperreceive.receive.entity.Receive;
+import com.hqu.modules.paperreceive.receive.service.ReceiveService;
+
+/**
+ * 订单管理Controller
+ * @author ylf
+ * @version 2018-09-09
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/receive/receive")
+public class ReceiveController extends BaseController {
+
+	@Autowired
+	private ReceiveService receiveService;
+	@Autowired
+	private OrderService orderService;
+	
+	@ModelAttribute
+	public Receive get(@RequestParam(required=false) String id) {
+		Receive entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = receiveService.get(id);
+		}
+		if (entity == null){
+			entity = new Receive();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 论文接收列表页面
+	 */
+	@RequiresPermissions("receive:receive:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(Receive receive, Model model) {
+		model.addAttribute("receive", receive);
+		return "paperreceive/receive/receive";
+	}
+	
+		/**
+	 * 论文接收列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(Receive receive, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<Receive> page = receiveService.findPage(new Page<Receive>(request, response), receive); 
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 查看，增加，编辑论文接收表单页面
+	 */
+	@RequiresPermissions(value={"receive:receive:view","receive:receive:add","receive:receive:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form/{mode}")
+	public String form(@PathVariable String mode, Receive receive, Model model) {
+		model.addAttribute("receive", receive);
+		model.addAttribute("mode", mode);
+		return "paperreceive/receive/receiveForm";
+	}
+
+	/**
+	 * 提取码验证
+	 */
+	@ResponseBody
+	//@RequiresPermissions("receive:receive:view")
+	@RequestMapping(value = "tqm",method = RequestMethod.POST)
+	public AjaxJson yztqm(@RequestParam("tiquma")String str , Order order, Model model) throws Exception{
+		AjaxJson j = new AjaxJson();//前端提取码
+		System.out.println(str);
+		String qdtqm=j.getJsonStr();
+		String userId =   UserUtils.getUser().getId();
+		/*if(order.getDdh()!=null) {
+			if(order.getTqm()==qdtqm)
+		}*/
+
+		Order dqjl = new Order();//被匹配的记录
+		String lwbh;//当前论文编号
+		String zjzh;//当前专家编号
+
+
+		return j;
+	}
+
+	/**
+	 * 通过提取码获得订单信息
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getOrder")
+	public AjaxJson getOrder(String accessCode){
+		AjaxJson ajaxJson = new AjaxJson();
+		Order order = new Order();
+		order.setTqm(accessCode);
+		List<Order> orderList = orderService.findList(order);
+		String userCode= UserUtils.getUser().getNo();
+
+		if(orderList.size() == 0){
+			ajaxJson.setSuccess(false);
+			ajaxJson.setMsg("无效提取码,请重新输入！");
+		}else {
+			if(!userCode.equals(orderList.get(0).getPszj().getYHZH())){
+				ajaxJson.setSuccess(false);
+				ajaxJson.setMsg("专家信息与登陆信息不匹配,请输入正确提取码！");
+			}
+			else {
+				ajaxJson.setSuccess(true);
+				ajaxJson.put("order",orderList.get(0));
+				ajaxJson.setMsg("提取订单信息成功！");
+			}
+		}
+		return ajaxJson;
+	}
+
+
+	/**
+	 * 保存论文接收
+	 */
+	@ResponseBody
+	@RequiresPermissions(value={"receive:receive:add","receive:receive:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public AjaxJson save(Receive receive, Model model) throws Exception{
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(receive);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+		//新增或编辑表单保存
+		receiveService.save(receive);//保存
+		j.setSuccess(true);
+		j.setMsg("保存论文接收成功");
+		return j;
+	}
+	
+	/**
+	 * 删除论文接收
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:del")
+	@RequestMapping(value = "delete")
+	public AjaxJson delete(Receive receive) {
+		AjaxJson j = new AjaxJson();
+		receiveService.delete(receive);
+		j.setMsg("删除论文接收成功");
+		return j;
+	}
+	
+	/**
+	 * 批量删除论文接收
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:del")
+	@RequestMapping(value = "deleteAll")
+	public AjaxJson deleteAll(String ids) {
+		AjaxJson j = new AjaxJson();
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			receiveService.delete(receiveService.get(id));
+		}
+		j.setMsg("删除论文接收成功");
+		return j;
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:export")
+    @RequestMapping(value = "export")
+    public AjaxJson exportFile(Receive receive, HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "论文接收"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Receive> page = receiveService.findPage(new Page<Receive>(request, response, -1), receive);
+    		new ExportExcel("论文接收", Receive.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出论文接收记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:import")
+    @RequestMapping(value = "import")
+   	public AjaxJson importFile(@RequestParam("file")MultipartFile file, HttpServletResponse response, HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<Receive> list = ei.getDataList(Receive.class);
+			for (Receive receive : list){
+				try{
+					receiveService.save(receive);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条论文接收记录。");
+			}
+			j.setMsg( "已成功导入 "+successNum+" 条论文接收记录"+failureMsg);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导入论文接收失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+	
+	/**
+	 * 下载导入论文接收数据模板
+	 */
+	@ResponseBody
+	@RequiresPermissions("receive:receive:import")
+    @RequestMapping(value = "import/template")
+     public AjaxJson importFileTemplate(HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "论文接收数据导入模板.xlsx";
+    		List<Receive> list = Lists.newArrayList(); 
+    		new ExportExcel("论文接收数据", Receive.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg( "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+
+}

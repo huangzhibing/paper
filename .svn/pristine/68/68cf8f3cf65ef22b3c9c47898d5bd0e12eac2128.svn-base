@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jeeplus.modules.expertmanagement.mapper.ExpertMapper">
+    
+	<sql id="expertColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.yhzh AS "YHZH",
+		a.zjxm AS "ZJXM",
+		a.zjlxdm AS "ZJXLDM",
+		a.zyjszwdm AS "ZYJSZWDM.rankCode",
+		ZYJSZWDM.zyjsjbmc AS "ZYJSZWDM.rankName",
+		a.dsjbdm AS "DSJBDM",
+		a.xbdm AS "XBDM",
+		a.qydm AS "QYDM.code",
+		QYDM.name AS "QYDM.name",
+		a.dzyx AS "DZYX",
+		a.dwdm AS "DWDM.dwdm",
+		DWDM.dwmc AS "DWDM.dwmc",
+		a.csny AS "CSNY",
+		a.ejxy AS "EJXY",
+		a.zgxw AS "ZJXW",
+		a.byyxdm AS "BYYXDM.gxdm",
+		BYYXDM.gxmc AS "BYYXDM.gxmc",
+		a.wyyz AS "WYYZ",
+		a.wysxcd AS "WYSXCD",
+		a.yddh AS "YDDH",
+		a.lxdh AS "LXDH",
+		a.lxdz AS "LXDZ",
+		a.yb AS "YB",
+		a.jg AS "JG",
+		a.zjztdm AS "ZJZTDM"
+
+
+	</sql>
+	
+	<sql id="expertJoins">
+		
+		LEFT JOIN t_professionaltechnical_c ZYJSZWDM ON ZYJSZWDM.zyjsjbdm = a.zyjszwdm
+		LEFT JOIN sys_area QYDM ON QYDM.code = a.qydm
+		LEFT JOIN t_institution_c DWDM ON DWDM.dwdm = a.dwdm
+		LEFT JOIN t_university_c BYYXDM ON BYYXDM.gxdm = a.byyxdm
+	</sql>
+	
+    
+	<select id="get" resultType="Expert" >
+		SELECT 
+			<include refid="expertColumns"/>
+		FROM t_expert a
+		<include refid="expertJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Expert" >
+		SELECT 
+			<include refid="expertColumns"/>
+		FROM t_expert a
+		<include refid="expertJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="YHZH != null and YHZH != ''">
+				AND a.yhzh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{YHZH}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{YHZH}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{YHZH},'%')</if>
+			</if>
+			<if test="ZJXM != null and ZJXM != ''">
+				AND a.zjxm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ZJXM}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ZJXM}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ZJXM},'%')</if>
+			</if>
+			<if test="ZJXLDM != null and ZJXLDM != ''">
+				AND a.zjlxdm = #{ZJXLDM}
+			</if>
+			<if test="ZYJSZWDM != null and ZYJSZWDM.rankCode != null and ZYJSZWDM.rankCode != ''">
+				AND a.zyjszwdm = #{ZYJSZWDM.rankCode}
+			</if>
+			<if test="DSJBDM != null and DSJBDM != ''">
+				AND a.dsjbdm = #{DSJBDM}
+			</if>
+			<if test="XBDM != null and XBDM != ''">
+				AND a.xbdm = #{XBDM}
+			</if>
+			<if test="QYDM != null and QYDM.code != null and QYDM.code != ''">
+				AND a.qydm = #{QYDM}
+			</if>
+			<if test="DZYX != null and DZYX != ''">
+				AND a.dzyx LIKE 
+					<if test="dbName == 'oracle'">'%'||#{DZYX}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{DZYX}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{DZYX},'%')</if>
+			</if>
+			<if test="DWDM != null and DWDM.dwdm != null and DWDM.dwdm != ''">
+				AND a.dwdm = #{DWDM.dwdm}
+			</if>
+			<if test="CSNY != null and CSNY != ''">
+				AND a.CSNY = #{CSNY}
+			</if>
+			<if test="EJXY != null and EJXY != ''">
+				AND a.ejxy LIKE 
+					<if test="dbName == 'oracle'">'%'||#{EJXY}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{EJXY}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{EJXY},'%')</if>
+			</if>
+			<if test="ZJXW != null and ZJXW != ''">
+				AND a.zgxw LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ZJXW}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ZJXW}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ZJXW},'%')</if>
+			</if>
+			<if test="BYYXDM != null and BYYXDM.gxdm != null and BYYXDM.gxdm != ''">
+				AND a.byyxdm = #{BYYXDM.gxdm}
+			</if>
+			<if test="WYYZ != null and WYYZ != ''">
+				AND a.wyyz LIKE 
+					<if test="dbName == 'oracle'">'%'||#{WYYZ}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{WYYZ}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{WYYZ},'%')</if>
+			</if>
+			<if test="WYSXCD != null and WYSXCD != ''">
+				AND a.wysxcd LIKE 
+					<if test="dbName == 'oracle'">'%'||#{WYSXCD}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{WYSXCD}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{WYSXCD},'%')</if>
+			</if>
+			<if test="YDDH != null and YDDH != ''">
+				AND a.yddh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{YDDH}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{YDDH}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{YDDH},'%')</if>
+			</if>
+			<if test="LXDH != null and LXDH != ''">
+				AND a.lxdh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{LXDH}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{LXDH}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{LXDH},'%')</if>
+			</if>
+			<if test="LXDZ != null and LXDZ != ''">
+				AND a.lxdz LIKE 
+					<if test="dbName == 'oracle'">'%'||#{LXDZ}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{LXDZ}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{LXDZ},'%')</if>
+			</if>
+			<if test="YB != null and YB != ''">
+				AND a.yb LIKE 
+					<if test="dbName == 'oracle'">'%'||#{YB}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{YB}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{YB},'%')</if>
+			</if>
+			<if test="JG != null and JG != ''">
+				AND a.jg LIKE 
+					<if test="dbName == 'oracle'">'%'||#{JG}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{JG}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{JG},'%')</if>
+			</if>
+			<if test="ZJZTDM != null and ZJZTDM != ''">
+				AND a.zjztdm = #{ZJZTDM}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Expert" >
+		SELECT 
+			<include refid="expertColumns"/>
+		FROM t_expert a
+		<include refid="expertJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_expert(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			yhzh,
+			zjxm,
+			zjlxdm,
+			zyjszwdm,
+			dsjbdm,
+			xbdm,
+			qydm,
+			dzyx,
+			dwdm,
+			csny,
+			ejxy,
+			zgxw,
+			byyxdm,
+			wyyz,
+			wysxcd,
+			yddh,
+			lxdh,
+			lxdz,
+			yb,
+			jg,
+			zjztdm
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{YHZH},
+			#{ZJXM},
+			#{ZJXLDM},
+			#{ZYJSZWDM.rankCode},
+			#{DSJBDM},
+			#{XBDM},
+			#{QYDM.code},
+			#{DZYX},
+			#{DWDM.dwdm},
+			#{CSNY},
+			#{EJXY},
+			#{ZJXW},
+			#{BYYXDM.gxdm},
+			#{WYYZ},
+			#{WYSXCD},
+			#{YDDH},
+			#{LXDH},
+			#{LXDZ},
+			#{YB},
+			#{JG},
+			#{ZJZTDM}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_expert SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			yhzh = #{YHZH},
+			zjxm = #{ZJXM},
+			zjlxdm = #{ZJXLDM},
+			zyjszwdm = #{ZYJSZWDM.rankCode},
+			dsjbdm = #{DSJBDM},
+			xbdm = #{XBDM},
+			qydm = #{QYDM.code},
+			dzyx = #{DZYX},
+			dwdm = #{DWDM.dwdm},
+			csny = #{CSNY},
+			ejxy = #{EJXY},
+			zgxw = #{ZJXW},
+			byyxdm = #{BYYXDM.gxdm},
+			wyyz = #{WYYZ},
+			wysxcd = #{WYSXCD},
+			yddh = #{YDDH},
+			lxdh = #{LXDH},
+			lxdz = #{LXDZ},
+			yb = #{YB},
+			jg = #{JG},
+			zjztdm = #{ZJZTDM}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_expert
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_expert SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Expert" statementType="STATEMENT">
+		select * FROM t_expert  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,127 @@
+package com.hqu.modules.craw.task.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hqu.modules.craw.core.entity.AjaxRequest;
+import com.hqu.modules.craw.core.entity.Identity;
+import com.hqu.modules.craw.core.entity.TargetData;
+import com.hqu.modules.craw.core.entity.TargetURL;
+import com.jeeplus.common.utils.IdGen;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class Task implements Serializable {
+    private String id;
+    private String name;
+    private String url;
+    private Integer type;
+    private boolean enableAjax;
+    private List<AjaxRequest> ajaxRequestList;
+    private List<TargetData> targetDataList;
+    private List<TargetURL> targetURLList;
+    private Integer totalUrlSize;
+    private Integer completeSize;
+    private Integer failSize;
+    private Identity dataPageIdentity;
+
+
+    public Integer getFailSize() {
+        return failSize;
+    }
+
+    public void setFailSize(Integer failSize) {
+        this.failSize = failSize;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
+
+    public Identity getDataPageIdentity() {
+        return dataPageIdentity;
+    }
+
+    public void setDataPageIdentity(Identity dataPageIdentity) {
+        this.dataPageIdentity = dataPageIdentity;
+    }
+
+    public Task(){
+        this.id = IdGen.uuid();
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getTotalUrlSize() {
+        return totalUrlSize;
+    }
+
+    public void setTotalUrlSize(Integer totalUrlSize) {
+        this.totalUrlSize = totalUrlSize;
+    }
+
+    public Integer getCompleteSize() {
+        return completeSize;
+    }
+
+    public void setCompleteSize(Integer completeSize) {
+        this.completeSize = completeSize;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public boolean isEnableAjax() {
+        return enableAjax;
+    }
+
+    public void setEnableAjax(boolean enableAjax) {
+        this.enableAjax = enableAjax;
+    }
+
+    public List<AjaxRequest> getAjaxRequestList() {
+        return ajaxRequestList;
+    }
+
+    public void setAjaxRequestList(List<AjaxRequest> ajaxRequestList) {
+        this.ajaxRequestList = ajaxRequestList;
+    }
+
+    public List<TargetData> getTargetDataList() {
+        return targetDataList;
+    }
+
+    public void setTargetDataList(List<TargetData> targetDataList) {
+        this.targetDataList = targetDataList;
+    }
+
+    public List<TargetURL> getTargetURLList() {
+        return targetURLList;
+    }
+
+    public void setTargetURLList(List<TargetURL> targetURLList) {
+        this.targetURLList = targetURLList;
+    }
+}

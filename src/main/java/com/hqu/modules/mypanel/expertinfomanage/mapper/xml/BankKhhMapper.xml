@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.mypanel.expertinfomanage.mapper.BankKhhMapper">
+    <sql id="BankKhhColumns">
+        a.khh AS "khh",
+        a.lhh AS "lhh",
+        a.khhhh AS "khhhh",
+        a.wdh AS "wdh",
+        a.xian AS "xian"
+    </sql>
+
+    <select id="findList" resultType="BankKhh">
+        SELECT
+          <include refid="BankKhhColumns"/>
+        FROM kaihuhang a
+        <where>
+            <if test="xian != null and xian != ''">
+                a.xian LIKE concat('%',#{xian},'%')
+            </if>
+            <if test="khh != null and khh != ''">
+                AND a.khh LIKE concat('%',#{khh},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

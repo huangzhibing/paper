@@ -1,0 +1,452 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ include file="/webpage/include/taglib.jsp" %>
+<%@ include file="/webpage/include/anihead.jsp"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/fetch/2.0.3/fetch.js"></script>
+</head>
+<body>
+<div id="app">
+    <el-container>
+        <el-header>
+            <el-button type="primary" @click="dialogVisible = true">添加</el-button>
+        </el-header>
+        <el-main>
+            <el-table
+                    :data="tableData"
+                    style="width: 100%"
+                    v-loading="loading"
+            >
+                <el-table-column
+                        prop="name"
+                        label="任务名称">
+                </el-table-column>
+                <el-table-column
+                        prop="url"
+                        label="入口地址">
+                </el-table-column>
+                <el-table-column
+                        prop="totalUrlSize"
+                        width="120"
+                        label="总URL数">
+                </el-table-column>
+                <el-table-column
+                        prop="completeSize"
+                        width="120"
+                        label="爬取URL数">
+                </el-table-column>
+                <el-table-column label="操作">
+                    <template slot-scope="scope">
+                        <el-button
+                                size="mini"
+                                type="primary"
+                                @click="run(scope.row.id)">运行
+                        </el-button>
+                        <el-button
+                                size="mini"
+                                @click="handleEdit(scope.row.id, scope.row)">编辑
+                        </el-button>
+                        <el-button
+                                size="mini"
+                                type="success"
+                                :loading="viewButtonLoading"
+                                @click="view(scope.row.id)">查看
+                        </el-button>
+                        <el-button
+                                size="mini"
+                                type="success"
+                                @click="exportExcel(scope.row.id)">导出
+                        </el-button>
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="handleDelete(scope.row.id, scope.row)">删除
+                        </el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-main>
+    </el-container>
+
+    <el-dialog :visible.sync="dialogVisible" @close="resetForm">
+        <el-form :model="inputForm" ref="inputForm" label-width="100px">
+            <el-form-item
+                    prop="name"
+                    label="任务名称"
+            >
+                <el-input v-model="inputForm.name"></el-input>
+            </el-form-item>
+            <el-form-item
+                    prop="url"
+                    label="入口URL"
+            >
+                <el-input v-model="inputForm.url"></el-input>
+            </el-form-item>
+            <el-form-item
+                    prop="type"
+                    label="任务类型"
+            >
+                <el-select v-model="inputForm.type" placeholder="请选择类型">
+                    <el-option label="列表+详情" :value="0"></el-option>
+                    <el-option label="多级列表+详情" :value="1"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item
+                    v-for="(targetURL, index) in inputForm.targetURLList"
+                    :label="'目标' + index"
+                    :key="targetURL.key"
+                    :prop="'targetURLList.' + index + '.value'"
+            >
+
+                <el-col :span="6">
+                    <el-select v-model="targetURL.metaType" placeholder="请选择类型">
+                        <el-option label="XPATH" :value="0"></el-option>
+                        <el-option label="REGEX" :value="1"></el-option>
+                        <el-option label="JSOUP" :value="2"></el-option>
+                        <el-option label="SELECTOR" :value="3"></el-option>
+                        <el-option label="AJAX" :value="4"></el-option>
+                    </el-select>
+                </el-col>
+
+                <el-col class="line" :span="2">
+                </el-col>
+
+                <el-col :span="12">
+                    <el-input v-model="targetURL.value" placeholder="请输入匹配串"></el-input>
+                </el-col>
+                <div v-if="targetURL.metaType == 4">
+
+                    <el-col :span="12">
+                        <el-input v-model="targetURL.ajaxPath" placeholder="Ajax请求地址"></el-input>
+                    </el-col>
+
+                    <el-col :span="12">
+                        <el-input v-model="targetURL.jsonArrayField" placeholder="JSONArray字段"></el-input>
+                    </el-col>
+
+                    <el-col :span="12">
+                        <el-input v-model="targetURL.jsonObjectField" placeholder="jsonObject字段"></el-input>
+                    </el-col>
+                </div>
+                <el-col :span="4">
+                    <el-button @click.prevent="removeTargetURL(targetURL)">删除</el-button>
+                </el-col>
+                <el-row v-if="inputForm.type == 1">
+                    <el-col :span="6">
+                        <el-select v-model="targetURL.identity.metaType" placeholder="请选择类型">
+                            <el-option label="XPATH" :value="0"></el-option>
+                            <el-option label="REGEX" :value="1"></el-option>
+                            <el-option label="JSOUP" :value="2"></el-option>
+                            <el-option label="SELECTOR" :value="3"></el-option>
+                            <el-option label="AJAX" :value="4"></el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="9">
+                        <el-input v-model="targetURL.identity.value" placeholder="请输入匹配串"></el-input>
+                    </el-col>
+                    <el-col :span="9">
+                        <el-input v-model="targetURL.identity.equalsTo" placeholder="请输入匹配值"></el-input>
+                    </el-col>
+                </el-row>
+            </el-form-item>
+            <el-form-item
+                    v-for="(targetData, index) in inputForm.targetDataList"
+                    :label="'字段' + index"
+                    :key="targetData.key"
+                    :prop="'targetDataList.' + index + '.value'"
+            >
+                <el-row>
+
+                    <el-col class="line" :span="2">
+                    </el-col>
+                    <el-col :span="6">
+                        <el-input v-model="targetData.name" placeholder="请输入字段名(英文)"></el-input>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-input v-model="targetData.displayName" placeholder="请输入字段名(中文)"></el-input>
+                    </el-col>
+
+                    <div v-if="targetData.metaType == 4">
+
+                        <el-col :span="12">
+                            <el-input v-model="targetData.ajaxPath" placeholder="Ajax请求地址"></el-input>
+                        </el-col>
+
+                        <el-col :span="12">
+                            <el-input v-model="targetData.jsonObjectField" placeholder="jsonObject字段"></el-input>
+                        </el-col>
+                    </div>
+                    <el-col :span="4">
+                        <el-button @click.prevent="removeTargetData(targetData)">删除</el-button>
+                    </el-col>
+                </el-row>
+                <el-row>
+
+                    <el-col :span="6">
+                        <el-select v-model="targetData.metaType" placeholder="请选择类型">
+                            <el-option label="XPATH" :value="0"></el-option>
+                            <el-option label="REGEX" :value="1"></el-option>
+                            <el-option label="JSOUP" :value="2"></el-option>
+                            <el-option label="SELECTOR" :value="3"></el-option>
+                            <el-option label="AJAX" :value="4"></el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-input v-model="targetData.value" placeholder="请输入匹配串"></el-input>
+                    </el-col>
+                </el-row>
+                <el-row v-if="inputForm.type == 1">
+                    <el-col :span="6">
+                        <el-select v-model="targetData.identity.metaType" placeholder="请选择类型">
+                            <el-option label="XPATH" :value="0"></el-option>
+                            <el-option label="REGEX" :value="1"></el-option>
+                            <el-option label="JSOUP" :value="2"></el-option>
+                            <el-option label="SELECTOR" :value="3"></el-option>
+                            <el-option label="AJAX" :value="4"></el-option>
+                        </el-select>
+                    </el-col>
+                    <el-col :span="9">
+                        <el-input v-model="targetData.identity.value" placeholder="请输入匹配串"></el-input>
+                    </el-col>
+                    <el-col :span="9">
+                        <el-input v-model="targetData.identity.equalsTo" placeholder="请输入匹配值"></el-input>
+                    </el-col>
+                </el-row>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="submitForm">提交</el-button>
+                <el-button @click="addTargetURL">新增目标</el-button>
+                <el-button @click="addTargetData">新增爬取字段</el-button>
+                <el-button @click="resetForm('dynamicValidateForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+    </el-dialog>
+    <el-dialog :visible.sync="infoDialogVisible" :fullScreen="true">
+        <el-table
+                :data="infoData"
+                style="width: 100%"
+                v-loading="loading"
+        >
+<%--            <el-table-column
+                    prop="name"
+                    label="任务名称"
+                    width="180"
+                    v-for=""
+            >
+            </el-table-column>--%>
+            <el-table-column :label="key" v-for ="(value,key) in infoData[0]"  :key="key" >
+                <template slot-scope="scope">
+                    <span>{{scope.row[key]}}</span>
+                </template>
+            </el-table-column>
+
+        </el-table>
+
+    </el-dialog>
+
+
+</div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            inputForm: {
+                id: '',
+                name: '',
+                url: '',
+                type: 0,
+                targetDataList: [
+                    {
+                        name: '',
+                        value: '',
+                        displayName: '',
+                        metaType: 0,
+                        identity: {}
+                    }
+                ],
+                targetURLList: [{
+                    metaType: 0,
+                    value: '',
+                    identity: {}
+                }]
+            },
+            dialogVisible: false,
+            loading: true,
+            tableData: [],
+            infoData : [],
+            infoDialogVisible: false,
+            viewButtonLoading: false,
+        },
+        created() {
+
+            this.getData();
+        },
+        methods: {
+            getData() {
+                this.loading = true;
+                var that = this;
+                fetch('${ctx}/task/crawTask/taskData').then(function (res) {
+                    return res.json();
+                }).then(function (data) {
+                    that.tableData = data;
+                    that.loading = false;
+                })
+            },
+            removeTargetURL(item) {
+                var index = this.inputForm.targetURLList.indexOf(item)
+                if (index !== -1) {
+                    this.inputForm.targetURLList.splice(index, 1)
+                }
+            },
+            addTargetURL() {
+                this.inputForm.targetURLList.push({
+                    metaType: 0,
+                    value: '',
+                    key: Date.now()
+                });
+            },
+            removeTargetData(item) {
+                var index = this.inputForm.targetDataList.indexOf(item)
+                if (index !== -1) {
+                    this.inputForm.targetDataList.splice(index, 1)
+                }
+            },
+            addTargetData() {
+                this.inputForm.targetDataList.push({
+                    name: '',
+                    value: '',
+                    displayName: '',
+                    metaType: 0,
+                    key: Date.now()
+                });
+            },
+            submitForm() {
+                /*        var targetDataList = this.inputForm.targetDataList;
+                        var targetURLList = this.inputForm.targetURLList;
+                        this.inputForm.targetURLList = [];
+                        this.inputForm.targetDataList = [];*/
+                var method = 'update'
+                if (!this.inputForm.id) {
+                    method = 'add'
+                    delete this.inputForm.id;
+                }
+                var that = this;
+                var opts = {
+                    method: "POST",   //请求方法
+                    body: JSON.stringify(this.inputForm),
+                    /*   targetDataList : targetDataList,
+                       targetURLList: targetURLList*/
+                    //请求体headers:
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                }
+                fetch('${ctx}/task/crawTask/' + method, opts).then(function (response) {
+                    return response.json()
+                }).then(function (data) {
+                    if (data.success) {
+                        that.$message.success('添加成功');
+                        that.dialogVisible = false;
+                        that.getData();
+                    } else {
+                        that.$message.error('添加失败');
+                    }
+                })
+            },
+            handleDelete: function (id) {
+                var that = this;
+                this.loading = true;
+                fetch('${ctx}/task/crawTask/del?id=' + id).then(function (res) {
+                    return res.json();
+                }).then(function (data) {
+                    if (data.success) {
+                        that.$message.success('删除成功');
+                        that.getData();
+                    } else {
+                        that.$message.error('删除失败' + data.msg);
+                    }
+                })
+            },
+            run: function (id) {
+                var that = this;
+                this.loading = true;
+                fetch('${ctx}/task/crawTask/run?id=' + id).then(function (res) {
+                    return res.json();
+                }).then(function (data) {
+                    if (data.success) {
+                        that.$message.success('启动成功');
+                        that.getData();
+                    } else {
+                        that.$message.error('启动失败' + data.msg);
+                    }
+                })
+            },
+            exportExcel: function (id) {
+                jp.downloadFile('${ctx}/task/crawTask/export?taskId=' + id);
+            },
+            handleEdit: function (id, task) {
+                this.inputForm = task;
+                this.dialogVisible = true;
+            },
+            view: function (id) {
+                var that = this;
+                this.viewButtonLoading = true;
+                fetch('${ctx}/task/crawTask/view?id=' + id).then(function (res) {
+                    return res.json();
+                }).then(function (data) {
+                    if (data.success) {
+                        console.log(data.data);
+                        var infoData =[]
+                        data.data.forEach(function(item){
+                            var temp = {
+                                'url':item.url,
+                            }
+                            for (var index in item.object){
+                                temp[index] = item.object[index];
+                            }
+                            infoData.push(temp);
+                        })
+                        that.infoData = infoData;
+                        that.infoDialogVisible = true;
+                        that.viewButtonLoading = false;
+                    } else {
+                        that.$message.error('删除失败' + data.msg);
+                        that.viewButtonLoading = false;
+                    }
+                })
+            },
+            resetForm: function() {
+                this.inputForm =  {
+                    id: '',
+                        name: '',
+                        url: '',
+                        type: 0,
+                        targetDataList: [
+                        {
+                            name: '',
+                            value: '',
+                            displayName: '',
+                            metaType: 0,
+                            identity: {}
+                        }
+                    ],
+                        targetURLList: [{
+                        metaType: 0,
+                        value: '',
+                        identity: {}
+                    }]
+                }
+            }
+        }
+    })
+</script>
+</html>

@@ -1,0 +1,227 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.customermanage.ordermanage.entity;
+
+import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.validation.constraints.NotNull;
+
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.jeeplus.modules.sys.entity.Area;
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 订单管理Entity
+ * @author hzb
+ * @version 2018-09-02
+ */
+public class OrderManage extends DataEntity<OrderManage> {
+	
+	private static final long serialVersionUID = 1L;
+	private String ddh;		// 订单号
+	private Date xdrq;		// 下单时间
+	private Date yysj;		// 预约时间
+	private String ddlxdm;		// 订单类型
+	private Double zj;		// 总价
+	private Date fksj;		// 付款时间
+	private String khxm;		// 客户姓名
+	private String yddh;		// 移动电话
+	private Date sqtksj;		// 申请退款时间
+	private String tkly;		// 退款理由
+	private String tkshjg;		// 退款审核结果
+	private String yhpj;		// 用户评价
+	private String pjxq;		// 评价详情
+	private String ddztdm;		// 订单状态
+	private Area qydm;		// 区域
+	private Expert pszj;		// 评审专家
+	private String note;		// 备注
+	private Paper lw; //论文
+	private String tqm; //提取码
+	
+	public OrderManage() {
+		super();
+	}
+
+	public OrderManage(String id){
+		super(id);
+	}
+
+	@ExcelField(title="订单号", align=2, sort=7)
+	public String getDdh() {
+		return ddh;
+	}
+
+	public void setDdh(String ddh) {
+		this.ddh = ddh;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@NotNull(message="下单时间不能为空")
+	@ExcelField(title="下单时间", align=2, sort=8)
+	public Date getXdrq() {
+		return xdrq;
+	}
+
+	public void setXdrq(Date xdrq) {
+		this.xdrq = xdrq;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@ExcelField(title="预约时间", align=2, sort=9)
+	public Date getYysj() {
+		return yysj;
+	}
+
+	public void setYysj(Date yysj) {
+		this.yysj = yysj;
+	}
+	
+	@ExcelField(title="订单类型", dictType="T_OrderType_C", align=2, sort=10)
+	public String getDdlxdm() {
+		return ddlxdm;
+	}
+
+	public void setDdlxdm(String ddlxdm) {
+		this.ddlxdm = ddlxdm;
+	}
+	
+	@ExcelField(title="总价", align=2, sort=11)
+	public Double getZj() {
+		return zj;
+	}
+
+	public void setZj(Double zj) {
+		this.zj = zj;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@ExcelField(title="付款时间", align=2, sort=12)
+	public Date getFksj() {
+		return fksj;
+	}
+
+	public void setFksj(Date fksj) {
+		this.fksj = fksj;
+	}
+	
+	@ExcelField(title="客户姓名", align=2, sort=13)
+	public String getKhxm() {
+		return khxm;
+	}
+
+	public void setKhxm(String khxm) {
+		this.khxm = khxm;
+	}
+	
+	@ExcelField(title="移动电话", align=2, sort=14)
+	public String getYddh() {
+		return yddh;
+	}
+
+	public void setYddh(String yddh) {
+		this.yddh = yddh;
+	}
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@ExcelField(title="申请退款时间", align=2, sort=15)
+	public Date getSqtksj() {
+		return sqtksj;
+	}
+
+	public void setSqtksj(Date sqtksj) {
+		this.sqtksj = sqtksj;
+	}
+	
+	@ExcelField(title="退款理由", align=2, sort=16)
+	public String getTkly() {
+		return tkly;
+	}
+
+	public void setTkly(String tkly) {
+		this.tkly = tkly;
+	}
+	
+	@ExcelField(title="退款审核结果", dictType="T_TKSHJG", align=2, sort=17)
+	public String getTkshjg() {
+		return tkshjg;
+	}
+
+	public void setTkshjg(String tkshjg) {
+		this.tkshjg = tkshjg;
+	}
+	
+	@ExcelField(title="用户评价", dictType="T_YHPJ", align=2, sort=18)
+	public String getYhpj() {
+		return yhpj;
+	}
+
+	public void setYhpj(String yhpj) {
+		this.yhpj = yhpj;
+	}
+	
+	@ExcelField(title="评价详情", align=2, sort=19)
+	public String getPjxq() {
+		return pjxq;
+	}
+
+	public void setPjxq(String pjxq) {
+		this.pjxq = pjxq;
+	}
+	
+	@ExcelField(title="订单状态", dictType="T_OrderStatus_C", align=2, sort=20)
+	public String getDdztdm() {
+		return ddztdm;
+	}
+
+	public void setDdztdm(String ddztdm) {
+		this.ddztdm = ddztdm;
+	}
+	
+	/*@NotNull(message="区域不能为空")*/
+	@ExcelField(title="区域", align=2, sort=21)
+	public Area getQydm() {
+		return qydm;
+	}
+
+	public void setQydm(Area qydm) {
+		this.qydm = qydm;
+	}
+	
+	@ExcelField(title="评审专家", align=2, sort=22)
+	public Expert getPszj() {
+		return pszj;
+	}
+
+	public void setPszj(Expert pszj) {
+		this.pszj = pszj;
+	}
+	
+	@ExcelField(title="备注", align=2, sort=23)
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+	public Paper getLw() {
+		return lw;
+	}
+
+	public void setLw(Paper lw) {
+		this.lw = lw;
+	}
+
+	public String getTqm() {
+		return tqm;
+	}
+
+	public void setTqm(String tqm) {
+		this.tqm = tqm;
+	}
+	
+}

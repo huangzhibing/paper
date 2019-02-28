@@ -1,0 +1,70 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.basedata.university.entity;
+
+import javax.validation.constraints.NotNull;
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 高校代码表Entity
+ * @author wdz
+ * @version 2018-09-25
+ */
+public class University extends DataEntity<University> {
+	
+	private static final long serialVersionUID = 1L;
+	private String gxdm;		// 高校代码
+	private String gxmc;		// 高校名称
+	private Double gxwd;		// 高校纬度
+	private Double gxjd;		// 高校经度
+	
+	public University() {
+		super();
+	}
+
+	public University(String id){
+		super(id);
+	}
+
+	@ExcelField(title="高校代码", align=2, sort=7)
+	public String getGxdm() {
+		return gxdm;
+	}
+
+	public void setGxdm(String gxdm) {
+		this.gxdm = gxdm;
+	}
+	
+	@ExcelField(title="高校名称", align=2, sort=8)
+	public String getGxmc() {
+		return gxmc;
+	}
+
+	public void setGxmc(String gxmc) {
+		this.gxmc = gxmc;
+	}
+	
+	@NotNull(message="高校纬度不能为空")
+	@ExcelField(title="高校纬度", align=2, sort=9)
+	public Double getGxwd() {
+		return gxwd;
+	}
+
+	public void setGxwd(Double gxwd) {
+		this.gxwd = gxwd;
+	}
+	
+	@NotNull(message="高校经度不能为空")
+	@ExcelField(title="高校经度", align=2, sort=10)
+	public Double getGxjd() {
+		return gxjd;
+	}
+
+	public void setGxjd(Double gxjd) {
+		this.gxjd = gxjd;
+	}
+	
+}

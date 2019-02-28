@@ -1,0 +1,18 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.jeeplus.modules.expertmanagement.mapper;
+
+import com.jeeplus.core.persistence.BaseMapper;
+import com.jeeplus.core.persistence.annotation.MyBatisMapper;
+import com.jeeplus.modules.expertmanagement.entity.Expert;
+
+/**
+ * 专家信息表MAPPER接口
+ * @author 黄志兵
+ * @version 2018-08-28
+ */
+@MyBatisMapper
+public interface ExpertMapper extends BaseMapper<Expert> {
+	
+}

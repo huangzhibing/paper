@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.craw.craw.mapper.CrawTaskMapper">
+    
+	<sql id="crawTaskColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.task_name AS "taskName",
+		a.help_url AS "helpUrl",
+		a.target_url AS "targetUrl",
+		a.xpath AS "xpath",
+		a.name AS "name"
+	</sql>
+	
+	<sql id="crawTaskJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="CrawTask" >
+		SELECT 
+			<include refid="crawTaskColumns"/>
+		FROM t_craw_task a
+		<include refid="crawTaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CrawTask" >
+		SELECT 
+			<include refid="crawTaskColumns"/>
+		FROM t_craw_task a
+		<include refid="crawTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CrawTask" >
+		SELECT 
+			<include refid="crawTaskColumns"/>
+		FROM t_craw_task a
+		<include refid="crawTaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_craw_task(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			task_name,
+			help_url,
+			target_url,
+			xpath,
+			name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{taskName},
+			#{helpUrl},
+			#{targetUrl},
+			#{xpath},
+			#{name}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_craw_task SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			task_name = #{taskName},
+			help_url = #{helpUrl},
+			target_url = #{targetUrl},
+			xpath = #{xpath},
+			name = #{name}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_craw_task
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_craw_task SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CrawTask" statementType="STATEMENT">
+		select * FROM t_craw_task  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

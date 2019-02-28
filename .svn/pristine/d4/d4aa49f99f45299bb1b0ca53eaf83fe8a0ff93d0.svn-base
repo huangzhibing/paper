@@ -1,0 +1,58 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.papereview.order.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.mapper.OrderMapper;
+
+/**
+ * 订单Service
+ * @author hzm
+ * @version 2018-09-01
+ */
+@Service
+@Transactional(readOnly = true)
+public class OrderService extends CrudService<OrderMapper, Order> {
+
+	@Autowired
+	OrderMapper orderMapper;
+
+	public Order get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Order> findList(Order order) {
+		return super.findList(order);
+	}
+	
+	public Page<Order> findPage(Page<Order> page, Order order) {
+		return super.findPage(page, order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Order order) {
+		super.save(order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Order order) {
+		super.delete(order);
+	}
+
+
+	public int getOrderByDate(Map<String,Object> map){
+		int num = orderMapper.getOrderByDate(map);
+		return num;
+	}
+	
+}

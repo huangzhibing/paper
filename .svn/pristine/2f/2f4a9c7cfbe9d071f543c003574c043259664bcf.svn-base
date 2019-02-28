@@ -1,0 +1,130 @@
+package com.hqu.modules.craw.task.web;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.hqu.modules.craw.core.Core;
+import com.hqu.modules.craw.core.MultiStepCore;
+import com.hqu.modules.craw.core.SimpleCore;
+import com.hqu.modules.craw.core.entity.TargetData;
+import com.hqu.modules.craw.core.entity.TargetURL;
+import com.hqu.modules.craw.core.entity.TaskType;
+import com.hqu.modules.craw.info.entity.Info;
+import com.hqu.modules.craw.info.service.CrawInfoService;
+import com.hqu.modules.craw.pipeline.RedisPipeline;
+import com.hqu.modules.craw.runner.TaskRunner;
+import com.hqu.modules.craw.task.entity.Task;
+import com.hqu.modules.craw.task.service.CrawTaskService;
+import com.hqu.modules.papermanage.entity.Paper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import us.codecraft.webmagic.Spider;
+
+import java.util.List;
+
+@Controller
+@RequestMapping(value = "${adminPath}/task/crawTask")
+public class TaskController {
+    @Autowired
+    private CrawTaskService taskService;
+    @Autowired
+    private CrawInfoService infoService;
+
+    @RequestMapping(value = {"list", ""})
+    public String list(Model model) {
+        return "craw/task/crawTaskList";
+    }
+    @RequestMapping("taskData")
+    @ResponseBody
+    public String taskData() {
+        return JSON.toJSONString(taskService.getAllTask());
+    }
+
+    @RequestMapping("add")
+    @ResponseBody
+    public String addTask(@RequestBody Task task) {
+        task.setTotalUrlSize(0);
+        task.setCompleteSize(0);
+        String id = taskService.save(task);
+        JSONObject response = new JSONObject();
+        if(StringUtils.isEmpty(id)) {
+            response.put("success",false);
+        } else {
+            response.put("success",true);
+            response.put("id",id);
+        }
+        return response.toJSONString();
+    }
+    @RequestMapping("view")
+    @ResponseBody
+    public String viewInfo(String id) {
+        List<Info> infoList = infoService.getInfoByTaskId(id);
+        JSONObject response = new JSONObject();
+        if(StringUtils.isEmpty(infoList)) {
+            response.put("success",false);
+        } else {
+            response.put("success",true);
+            response.put("data",infoList);
+        }
+        return response.toJSONString();
+    }
+
+    @RequestMapping("update")
+    @ResponseBody
+    public String updateTask(@RequestBody Task task) {
+        String id = taskService.save(task);
+        JSONObject response = new JSONObject();
+        if(StringUtils.isEmpty(id)) {
+            response.put("success",false);
+        } else {
+            response.put("success",true);
+            response.put("id",id);
+        }
+        return response.toJSONString();
+    }
+    @RequestMapping("del")
+    @ResponseBody
+    public String delTask(String id) {
+        Task task = taskService.get(id);
+        JSONObject response = new JSONObject();
+        taskService.del(id);
+        if(StringUtils.isEmpty(task)) {
+            response.put("success",false);
+            response.put("msg","该任务不存在");
+        } else {
+            response.put("success",true);
+        }
+        return response.toJSONString();
+    }
+    @RequestMapping("run")
+    @ResponseBody
+    public String run(String id) {
+        Task task = taskService.get(id);
+        task.setCompleteSize(0);
+        task.setTotalUrlSize(0);
+        taskService.save(task);
+        Core core;
+        if(TaskType.TYPE_SIMPLE.equals(task.getType())) {
+            core = new SimpleCore();
+        } else if(TaskType.TYPE_MULTISTEP.equals(task.getType())) {
+            core = new MultiStepCore();
+        } else {
+            core = new SimpleCore();
+        }
+        TaskRunner tr = new TaskRunner(core,task);
+        Spider.create(tr).addUrl(task.getUrl()).addPipeline(new RedisPipeline(task)).thread(5).start();
+        JSONObject response = new JSONObject();
+        if(StringUtils.isEmpty(task)) {
+            response.put("success",false);
+            response.put("msg","该任务不存在");
+        } else {
+            response.put("success",true);
+        }
+        return response.toJSONString();
+    }
+}

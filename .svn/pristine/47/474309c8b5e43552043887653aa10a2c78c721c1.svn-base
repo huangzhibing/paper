@@ -1,0 +1,48 @@
+package com.hqu.modules.craw.info.service;
+
+import com.alibaba.fastjson.JSON;
+import com.hqu.modules.common.util.RedisUtil;
+import com.hqu.modules.craw.info.entity.Info;
+import com.hqu.modules.craw.task.entity.Task;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+@Service
+public class CrawInfoService {
+    private static final String INFO = "CRAW_INFO";
+    private static final String SEP = ":";
+    public String save(Info info) {
+            RedisUtil.put(info.getTaskId() + SEP + INFO,info.getId(), JSON.toJSON(info));
+            return info.getId();
+    }
+
+    public List<Info> getInfoByTaskId(String taskId) {
+        Collection<String> keys = RedisUtil.getAll(taskId + SEP + INFO);
+        List<Info> infos = new ArrayList<>();
+        Info temp;
+        for(String s : keys) {
+            temp = get(taskId, s);
+            if(temp != null) {
+                infos.add(temp);
+            }
+        }
+        return  infos;
+    }
+
+    public Info get(String taskId,String uuid)  {
+        Object task = RedisUtil.get(taskId + SEP +INFO,uuid);
+        if(task == null) {
+            return null;
+        }
+        return JSON.parseObject(RedisUtil.get(taskId + SEP +INFO,uuid).toString(),Info.class);
+    }
+
+    public void del(String taskId,String uuid) {
+        RedisUtil.remove(taskId + SEP +INFO,uuid);
+    }
+
+    public void deleteAll(String taskId) {RedisUtil.removeAll(taskId + SEP + INFO);}
+}

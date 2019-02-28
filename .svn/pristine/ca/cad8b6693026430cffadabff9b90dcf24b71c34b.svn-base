@@ -1,0 +1,56 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.basedata.university.service;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.hqu.modules.basedata.university.entity.University;
+import com.hqu.modules.basedata.university.mapper.UniversityMapper;
+
+/**
+ * 高校代码表Service
+ * @author wdz
+ * @version 2018-12-17
+ */
+@Service
+@Transactional(readOnly = true)
+public class UniversityService extends CrudService<UniversityMapper, University> {
+	@Autowired
+	UniversityMapper mapper;
+
+	public University get(String id) {
+		return super.get(id);
+	}
+	
+	public List<University> findList(University university) {
+		return super.findList(university);
+	}
+	
+	public Page<University> findPage(Page<University> page, University university) {
+		return super.findPage(page, university);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(University university) {
+		super.save(university);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(University university) {
+		super.delete(university);
+	}
+	public List<Map<String,String>> universityMap() {
+		return mapper.universityMap();
+	};
+	public List<University> selectAll_University(){
+		return mapper.selectAll_University();
+	}
+}

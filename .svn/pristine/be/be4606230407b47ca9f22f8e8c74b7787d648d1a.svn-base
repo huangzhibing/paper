@@ -1,0 +1,33 @@
+package com.hqu.modules.craw.core.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class TargetURL {
+    private String value;
+    private Integer metaType;
+    private Identity identity;
+
+    public Identity getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(Identity identity) {
+        this.identity = identity;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Integer getMetaType() {
+        return metaType;
+    }
+
+    public void setMetaType(Integer metaType) {
+        this.metaType = metaType;
+    }
+}

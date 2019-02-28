@@ -1,0 +1,32 @@
+package com.hqu.modules.common.service;
+
+
+import com.hqu.modules.common.mapper.CommonMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 公共SERVICE方法
+ * @author hzb
+ * @version 2018-08-29
+ */
+@Service
+@Transactional(readOnly = true)
+public class CommonService {
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    public Boolean checkOnly(String tableName,String filedName,String filedValue){
+        Map<String,Object> statement = new HashMap<>();
+        statement.put("tableName",tableName);
+        statement.put("filedName",filedName);
+        statement.put("filedValue","'"+filedValue+"'");
+
+        return Integer.parseInt(commonMapper.checkOnly(statement))>0;
+    }
+}

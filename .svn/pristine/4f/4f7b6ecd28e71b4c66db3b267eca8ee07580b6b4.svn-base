@@ -1,0 +1,57 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.database.costc.entity;
+
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 费用表Entity
+ * @author wy
+ * @version 2018-09-24
+ */
+public class Costc extends DataEntity<Costc> {
+	
+	private static final long serialVersionUID = 1L;
+	private Integer gxdm;		// 高校代码
+	private Integer zydm;		// 专业代码
+	private Integer psfy;		// 评审费用
+	
+	public Costc() {
+		super();
+	}
+
+	public Costc(String id){
+		super(id);
+	}
+
+	@ExcelField(title="高校代码", align=2, sort=6)
+	public Integer getGxdm() {
+		return gxdm;
+	}
+
+	public void setGxdm(Integer gxdm) {
+		this.gxdm = gxdm;
+	}
+	
+	@ExcelField(title="专业代码", align=2, sort=7)
+	public Integer getZydm() {
+		return zydm;
+	}
+
+	public void setZydm(Integer zydm) {
+		this.zydm = zydm;
+	}
+	
+	@ExcelField(title="评审费用", align=2, sort=8)
+	public Integer getPsfy() {
+		return psfy;
+	}
+
+	public void setPsfy(Integer psfy) {
+		this.psfy = psfy;
+	}
+	
+}

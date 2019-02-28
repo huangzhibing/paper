@@ -1,0 +1,19 @@
+crawredis.hostName = 120.77.77.201
+crawredis.port = 6369
+crawredis.timeout = 2000
+crawredis.password =redisPass
+crawredis.database = 1
+
+crawredis.maxTotal = 100
+crawredis.maxIdle = 10
+crawredis.maxWaitMillis = 5000
+crawredis.minEvictableIdleTimeMillis = 60000
+crawredis.minIdle = 1
+crawredis.numTestsPerEvictionRun = 10
+crawredis.lifo = false
+crawredis.softMinEvictableIdleTimeMillis = 10
+crawredis.testOnBorrow = true
+crawredis.testOnReturn = false
+crawredis.testWhileIdle = true
+crawredis.timeBetweenEvictionRunsMillis = 300000
+crawredis.blockWhenExhausted = false

@@ -1,0 +1,59 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.basedata.costc.entity;
+
+import com.hqu.modules.basedata.University.entity.University;
+import com.hqu.modules.test.basedata.specialitymanage.entity.SpecialityManage;
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 费用表Entity
+ * @author wy
+ * @version 2018-09-29
+ */
+public class Costc extends DataEntity<Costc> {
+	
+	private static final long serialVersionUID = 1L;
+	private University gxdm;		// 高校代码
+	private SpecialityManage zydm;		// 专业代码
+	private Integer psfy;		// 评审费用
+	
+	public Costc() {
+		super();
+	}
+
+	public Costc(String id){
+		super(id);
+	}
+
+	@ExcelField(title="高校代码", fieldType=University.class, value="", align=2, sort=6)
+	public University getGxdm() {
+		return gxdm;
+	}
+
+	public void setGxdm(University gxdm) {
+		this.gxdm = gxdm;
+	}
+	
+	@ExcelField(title="专业代码", fieldType=SpecialityManage.class, value="", align=2, sort=7)
+	public SpecialityManage getZydm() {
+		return zydm;
+	}
+
+	public void setZydm(SpecialityManage zydm) {
+		this.zydm = zydm;
+	}
+	
+	@ExcelField(title="评审费用", align=2, sort=8)
+	public Integer getPsfy() {
+		return psfy;
+	}
+
+	public void setPsfy(Integer psfy) {
+		this.psfy = psfy;
+	}
+	
+}

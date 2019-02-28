@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.universitypaymentmanager.receives.mapper.ReceivesMapper">
+    
+	<sql id="receivesColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ddh AS "ddh",
+		a.xdrq AS "xdrq",
+		a.yysj AS "yysj",
+		a.ddlxdm AS "ddlxdm",
+		a.zj AS "zj",
+		a.fksj AS "fksj",
+		a.khxm AS "khxm",
+		a.yddh AS "yddh",
+		a.sqtksj AS "sqtksj",
+		a.tkly AS "tkly",
+		a.tkshjg AS "tkshjg",
+		a.yhpj AS "yhpj",
+		a.pjxq AS "pjxq",
+		a.ddztdm AS "ddztdm",
+		a.qydm AS "qydm.code",
+		a.pszj AS "pszj",
+		a.note AS "note",
+		a.psdj AS "psdj",
+		a.psyj AS "psyj"
+	</sql>
+	
+	<sql id="receivesJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Receives" >
+		SELECT 
+			<include refid="receivesColumns"/>
+		FROM t_order a
+		<include refid="receivesJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Receives" >
+		SELECT 
+			<include refid="receivesColumns"/>
+		FROM t_order a
+		<include refid="receivesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Receives" >
+		SELECT 
+			<include refid="receivesColumns"/>
+		FROM t_order a
+		<include refid="receivesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_order(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ddh,
+			xdrq,
+			yysj,
+			ddlxdm,
+			zj,
+			fksj,
+			khxm,
+			yddh,
+			sqtksj,
+			tkly,
+			tkshjg,
+			yhpj,
+			pjxq,
+			ddztdm,
+			qydm,
+			pszj,
+			note,
+			psdj,
+			psyj
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ddh},
+			#{xdrq},
+			#{yysj},
+			#{ddlxdm},
+			#{zj},
+			#{fksj},
+			#{khxm},
+			#{yddh},
+			#{sqtksj},
+			#{tkly},
+			#{tkshjg},
+			#{yhpj},
+			#{pjxq},
+			#{ddztdm},
+			#{qydm.code},
+			#{pszj},
+			#{note},
+			#{psdj},
+			#{psyj}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_order SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ddh = #{ddh},
+			xdrq = #{xdrq},
+			yysj = #{yysj},
+			ddlxdm = #{ddlxdm},
+			zj = #{zj},
+			fksj = #{fksj},
+			khxm = #{khxm},
+			yddh = #{yddh},
+			sqtksj = #{sqtksj},
+			tkly = #{tkly},
+			tkshjg = #{tkshjg},
+			yhpj = #{yhpj},
+			pjxq = #{pjxq},
+			ddztdm = #{ddztdm},
+			qydm = #{qydm.code},
+			pszj = #{pszj},
+			note = #{note},
+			psdj = #{psdj},
+			psyj = #{psyj}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Receives" statementType="STATEMENT">
+		select * FROM t_order  where ${propertyName} = '${value}'
+	</select>
+	<update id="makeSure">
+		update t_order set ddztdm='e' where id=#{id}
+	</update>
+</mapper>

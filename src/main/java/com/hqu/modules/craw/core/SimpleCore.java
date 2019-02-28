@@ -1,0 +1,88 @@
+package com.hqu.modules.craw.core;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.hqu.modules.craw.core.Core;
+import com.hqu.modules.craw.core.entity.MetaType;
+import com.hqu.modules.craw.core.entity.TargetData;
+import com.hqu.modules.craw.core.entity.TargetURL;
+import com.hqu.modules.craw.task.entity.Task;
+import com.hqu.modules.craw.util.CrawUtils;
+import com.jeeplus.common.utils.StringUtils;
+import us.codecraft.webmagic.Page;
+
+import javax.json.Json;
+import java.util.ArrayList;
+import java.util.List;
+
+public class SimpleCore implements Core {
+
+    @Override
+    public List<String> getTargetUrl(Task task, Page page) {
+        List<String> targetList = new ArrayList<>();
+        for(TargetURL targetURL : task.getTargetURLList()) {
+            if(MetaType.XPATH.equals(targetURL.getMetaType())) {
+                List<String> urls = page.getHtml().xpath(targetURL.getValue()).all();
+                targetList.addAll(urls);
+                task.setTotalUrlSize(task.getTotalUrlSize() + urls.size());
+            } else if(MetaType.REGEX.equals(targetURL.getMetaType())){
+                List<String> temp = page.getHtml().regex(targetURL.getValue()).all();
+                temp = CrawUtils.handleAndSymbol(temp);
+                targetList.addAll(temp);
+                task.setTotalUrlSize(task.getTotalUrlSize() + temp.size());
+            } else if(MetaType.JSOUP.equals(targetURL.getMetaType())) {
+            } else if(MetaType.AJAX.equals(targetURL.getMetaType())) {
+                JSONObject result = null;
+                int flag = 0;
+                if("once".equals(targetURL.getValue())){
+                    flag = 1;
+                    if(task.getTotalUrlSize() > 0) {
+                        return new ArrayList<>();
+                    } else {
+                        result = CrawUtils.getAjaxResult(targetURL.getAjaxPath());
+                    }
+                }
+                if(StringUtils.isNotEmpty(targetURL.getValue()) && flag != 1) {
+                    String value = page.getHtml().regex(targetURL.getValue(), 1).get();
+                    result = CrawUtils.getAjaxResult(targetURL.getAjaxPath() + value);
+                }
+                if(result != null) {
+                    List<String> temp = new ArrayList<>();
+                    if(StringUtils.isNotEmpty(targetURL.getJsonArrayField())) {
+                        JSONArray array = result.getJSONArray(targetURL.getJsonArrayField());
+                        if(StringUtils.isNotEmpty(targetURL.getJsonObjectField())) {
+                            for (int i = 0; i < array.size(); i++) {
+                                temp.add(CrawUtils.handleAndSymbol(array.getJSONObject(i).getString(targetURL.getJsonObjectField())));
+                            }
+                        }
+                    }
+                    targetList.addAll(temp);
+                    task.setTotalUrlSize(task.getTotalUrlSize() + temp.size());
+                }
+            }
+        }
+        return targetList;
+    }
+
+    @Override
+    public void getTargetData(Task task, Page page) {
+        for(TargetData targetData : task.getTargetDataList()) {
+            if(MetaType.XPATH.equals(targetData.getMetaType())) {
+                page.putField(targetData.getName(),page.getHtml().xpath(targetData.getValue()).toString());
+            } else if(MetaType.REGEX.equals(targetData.getMetaType())){
+                page.putField(targetData.getName(),page.getHtml().regex(targetData.getValue()));
+            } else if(MetaType.JSOUP.equals(targetData.getMetaType())) {
+
+            } else if(MetaType.SELECTOR.equals(targetData.getMetaType())) {
+                page.putField(targetData.getName(),page.getHtml().$(targetData.getValue().replace(" ","")).smartContent().toString());
+            } else if(MetaType.AJAX.equals(targetData.getMetaType())) {
+//                page.putField(targetData.getName(),page.getHtml().$(targetData.getValue().replace(" ","")).smartContent().toString());
+                String value = page.getHtml().regex(targetData.getValue(), 1).get();
+                JSONObject result = CrawUtils.getAjaxResult(targetData.getAjaxPath() + value);
+                page.putField(targetData.getName(),result.getString(targetData.getJsonObjectField()));
+            }
+        }
+    }
+
+
+}

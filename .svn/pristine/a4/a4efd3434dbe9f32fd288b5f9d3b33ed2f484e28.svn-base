@@ -1,0 +1,67 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.basedata.positionmanagement.entity;
+
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+/**
+ * 专业技术级别Entity
+ * @author zll
+ * @version 2018-09-09
+ */
+public class ProfessionalTechniqueRank extends DataEntity<ProfessionalTechniqueRank> {
+	
+	private static final long serialVersionUID = 1L;
+	private String rankCode;		// 专业技术级别代码
+	private String rankName;		// 专业技术级别名称
+	private String rankTitle;		// 岗位等级
+	private String rankSection;		// 国家专业技术岗位级别
+	
+	public ProfessionalTechniqueRank() {
+		super();
+	}
+
+	public ProfessionalTechniqueRank(String id){
+		super(id);
+	}
+
+	@ExcelField(title="专业技术级别代码", align=2, sort=0)
+	public String getRankCode() {
+		return rankCode;
+	}
+
+	public void setRankCode(String rankCode) {
+		this.rankCode = rankCode;
+	}
+	
+	@ExcelField(title="专业技术级别名称", align=2, sort=1)
+	public String getRankName() {
+		return rankName;
+	}
+
+	public void setRankName(String rankName) {
+		this.rankName = rankName;
+	}
+	
+	@ExcelField(title="岗位等级", dictType="T_RankTitle", align=2, sort=2)
+	public String getRankTitle() {
+		return rankTitle;
+	}
+
+	public void setRankTitle(String rankTitle) {
+		this.rankTitle = rankTitle;
+	}
+	
+	@ExcelField(title="国家专业技术岗位级别", dictType="T_RankSection", align=2, sort=3)
+	public String getRankSection() {
+		return rankSection;
+	}
+
+	public void setRankSection(String rankSection) {
+		this.rankSection = rankSection;
+	}
+	
+}

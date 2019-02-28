@@ -1,0 +1,18 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.craw.craw.mapper;
+
+import com.jeeplus.core.persistence.BaseMapper;
+import com.jeeplus.core.persistence.annotation.MyBatisMapper;
+import com.hqu.modules.craw.craw.entity.CrawTask;
+
+/**
+ * 爬虫任务MAPPER接口
+ * @author M1ngz
+ * @version 2018-08-19
+ */
+@MyBatisMapper
+public interface CrawTaskMapper extends BaseMapper<CrawTask> {
+	
+}

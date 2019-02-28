@@ -1,0 +1,9 @@
+package com.hqu.modules.craw.core.entity;
+
+public class MetaType {
+    public static final Integer XPATH = 0;
+    public static final Integer REGEX = 1;
+    public static final Integer JSOUP = 2;
+    public static final Integer SELECTOR = 3;
+    public static final Integer AJAX = 4;
+}

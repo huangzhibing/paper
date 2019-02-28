@@ -1,0 +1,301 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.papereview.order.web;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+
+import com.hqu.modules.basedata.costc.entity.Costc;
+import com.hqu.modules.basedata.costc.service.CostcService;
+import com.hqu.modules.basedata.studentmanage.entity.StudentManage;
+import com.hqu.modules.basedata.studentmanage.service.StudentManageService;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.service.ExpertService;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.service.PaperService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.common.collect.Lists;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.service.OrderService;
+
+/**
+ * 订单Controller
+ * @author hzm
+ * @version 2018-09-01
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/order/order")
+public class OrderController extends BaseController {
+
+	@Autowired
+	private OrderService orderService;
+	@Autowired
+	private PaperService paperService;
+	@Autowired
+	private ExpertService expertService;
+	@Autowired
+	private StudentManageService studentManageService;
+	@Autowired
+	private CostcService costcService;
+	@ModelAttribute
+	public Order get(@RequestParam(required=false) String id) {
+		Order entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = orderService.get(id);
+		}
+		if (entity == null){
+			entity = new Order();
+		}
+		return entity;
+	}
+	/**
+	 * 自动分配专家
+	 */
+	@RequiresPermissions("order:order:add")
+	@RequestMapping(value = "distribute")
+	public String distribute(Model model,@RequestParam(required=true) String id,Expert expert) {
+		String ids[]=id.split(",");
+		Random random=new Random();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+		//为每篇论文分配专家
+		int successNum=0; //成功分配的专家数
+		List<String> YHZHs=new ArrayList<>();
+		for(String i : ids){
+			try {
+				orderService.distribution(i,random,sdf,YHZHs,expert);
+				successNum++;
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+		model.addAttribute("message","已批量指派"+ids.length+"个专家,成功"+successNum+"个,失败"+(ids.length-successNum)+"个");
+		return "papereview/order/orderList";
+	}
+	/**
+	 * 订单列表页面
+	 */
+	@RequiresPermissions("order:order:list")
+	@RequestMapping(value = {"list", ""})
+	public String list(Order order, Model model) {
+		model.addAttribute("order", order);
+		return "papereview/order/orderList";
+	}
+	
+		/**
+	 * 订单列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:list")
+	@RequestMapping(value = "data")
+	public Map<String, Object> data(Paper paper, HttpServletRequest request, HttpServletResponse response, Model model) {
+		Page<Paper> page = paperService.findPage(new Page<Paper>(request, response), paper);
+		//完善论文信息
+		for(Paper p:page.getList()){
+			if(p.getXSXH()!=null){
+				StudentManage student=new StudentManage();
+				student.setXsxh(p.getXSXH().getXsxh());
+				if(studentManageService.findList(p.getXSXH()).size()>0) {
+					student = studentManageService.findList(student).get(0);
+					p.setXSXH(student);
+				}
+			}
+		}
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 查看，增加，编辑订单表单页面
+	 */
+	@RequiresPermissions(value={"order:order:view","order:order:add","order:order:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form/{mode}")
+	public String form(@PathVariable String mode,String id, Order order, Model model) {
+		if("edit".equals(mode)) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+			Random random = new Random();
+			String num = Integer.toString(random.nextInt(10000));
+			order.setDdh(sdf.format(new Date()) + num);
+			order.setXdrq(new Date());
+			if(StringUtils.isNotEmpty(id)){
+				Paper paper=paperService.get(id);
+				order.setLw(paper);
+			}
+		}
+		model.addAttribute("order", order);
+		model.addAttribute("mode", mode);
+		return "papereview/order/orderForm";
+	}
+
+	/**
+	 * 保存订单
+	 */
+	@ResponseBody
+	@RequiresPermissions(value={"order:order:add","order:order:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public AjaxJson save(Order order, Model model ,String pid,String eid) throws Exception{
+		//自动生成提起码
+		if(order.getDdh()!=null) {
+			order.setTqm(order.getDdh().substring(order.getDdh().length() - 6, order.getDdh().length()));
+		}
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(order);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+		Paper paper=paperService.get(pid);
+		Expert expert=expertService.get(eid);
+		try {
+			orderService.trySave(paper,expert,order);
+		}catch (Exception e){
+			e.printStackTrace();
+			j.setSuccess(false);
+			j.setMsg("生成订单失败");
+			return j;
+		}
+		j.setSuccess(true);
+		j.setMsg("生成订单成功");
+		return j;
+	}
+
+	@RequiresPermissions(value={"order:order:add","order:order:edit"},logical=Logical.OR)
+	@RequestMapping(value = "confirm")
+	public String confirm(){
+		return "papereview/order/confirm";
+	}
+	
+	/**
+	 * 删除订单
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:del")
+	@RequestMapping(value = "delete")
+	public AjaxJson delete(Order order) {
+		AjaxJson j = new AjaxJson();
+		orderService.delete(order);
+		j.setMsg("删除订单成功");
+		return j;
+	}
+	
+	/**
+	 * 批量删除订单
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:del")
+	@RequestMapping(value = "deleteAll")
+	public AjaxJson deleteAll(String ids) {
+		AjaxJson j = new AjaxJson();
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			orderService.delete(orderService.get(id));
+		}
+		j.setMsg("删除订单成功");
+		return j;
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:export")
+    @RequestMapping(value = "export")
+    public AjaxJson exportFile(Order order, HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "订单"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Order> page = orderService.findPage(new Page<Order>(request, response, -1), order);
+    		new ExportExcel("订单", Order.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出订单记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:import")
+    @RequestMapping(value = "import")
+   	public AjaxJson importFile(@RequestParam("file")MultipartFile file, HttpServletResponse response, HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<Order> list = ei.getDataList(Order.class);
+			for (Order order : list){
+				try{
+					orderService.save(order);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					failureNum++;
+				}catch (Exception ex) {
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条订单记录。");
+			}
+			j.setMsg( "已成功导入 "+successNum+" 条订单记录"+failureMsg);
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导入订单失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+	
+	/**
+	 * 下载导入订单数据模板
+	 */
+	@ResponseBody
+	@RequiresPermissions("order:order:import")
+    @RequestMapping(value = "import/template")
+     public AjaxJson importFileTemplate(HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "订单数据导入模板.xlsx";
+    		List<Order> list = Lists.newArrayList(); 
+    		new ExportExcel("订单数据", Order.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg( "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+}

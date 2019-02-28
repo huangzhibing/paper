@@ -1,0 +1,79 @@
+package com.hqu.modules.common.web;
+
+import com.hqu.modules.common.service.CommonService;
+import com.jeeplus.common.utils.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
+
+/**
+ * 公共Controller
+ * @author hzb
+ * @version 2018-08-29
+ */
+
+@Controller
+@RequestMapping(value = "${adminPath}/common")
+public class CommonController {
+
+    @Autowired
+    CommonService commonService;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @RequestMapping("checkOnly")
+    @ResponseBody
+    public String ckeckOnly(String tableName,String filedName,String filedValue,String filedName2,String filedValue2){
+        boolean statement1 = commonService.checkOnly(tableName,filedName,filedValue);
+        if(StringUtils.isNotEmpty(filedName2)&&StringUtils.isNotEmpty(filedValue2)) {
+            boolean statement2 = commonService.checkOnly(tableName, filedName2, filedValue2);
+            if(statement2){
+                logger.debug("名称已存在");
+                return "false2";
+            }
+            else {
+                return "true";
+            }
+        }
+        if(statement1){
+            logger.debug("编码已存在");
+            return "false";
+        }
+
+        else{
+            return "true";
+        }
+    }
+
+    /**
+     * gridselect选择框
+     * 2次编码加2次解码，解决乱码问题
+     */
+    @RequiresPermissions("user")
+    @RequestMapping(value = "gridselect")
+    public String gridselect(String url, String fieldLabels, String fieldKeys, String searchLabels, String searchKeys, String isMultiSelected, HttpServletRequest request, HttpServletResponse response, Model model) {
+        try {
+            url= URLDecoder.decode(url,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        model.addAttribute("isMultiSelected", isMultiSelected);
+        model.addAttribute("fieldLabels", fieldLabels.split("\\|"));
+        model.addAttribute("fieldKeys", fieldKeys.split("\\|"));
+        model.addAttribute("url", url);
+        model.addAttribute("searchLabels", searchLabels.split("\\|"));
+        model.addAttribute("searchKeys", searchKeys.split("\\|"));
+        return "modules/common/gridselect";
+    }
+}

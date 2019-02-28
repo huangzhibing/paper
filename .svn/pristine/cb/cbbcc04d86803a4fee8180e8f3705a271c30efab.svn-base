@@ -1,0 +1,53 @@
+package com.hqu.modules.craw.craw.core;
+
+import com.alibaba.fastjson.JSON;
+import com.hqu.modules.craw.craw.entity.CrawTask;
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.processor.PageProcessor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CrawCore implements PageProcessor {
+
+    private CrawTask crawTask;
+
+    private Site site = Site.me().setRetryTimes(3).setSleepTime(100);
+
+    @Override
+    public void process(Page page) {
+        String str = JSON.toJSONString(page.getHtml().links());
+        List<String> html = page.getHtml().regex("object_id=(\\w+)").all();
+        List<String> urls = new ArrayList<>();
+        for(String url : html) {
+            url = "http://www.cs.zju.edu.cn/chinese/redir.php?catalog_id=101808&object_id=" + url;
+            urls.add(url);
+        }
+        page.addTargetRequests(urls);
+        for(String key : crawTask.getMap().keySet()){
+            page.putField(key, page.getHtml().xpath(crawTask.getMap().get(key)));
+        }
+/*        if (page.getResultItems().get("name")==null){
+            //skip this page
+            page.setSkip(true);
+        }*/
+    }
+
+    public CrawTask getCrawTask() {
+        return crawTask;
+    }
+
+    public void setCrawTask(CrawTask crawTask) {
+        this.crawTask = crawTask;
+    }
+
+    @Override
+    public Site getSite() {
+        return site;
+    }
+
+    public CrawCore(CrawTask crawTask) {
+        this.crawTask = crawTask;
+    }
+}

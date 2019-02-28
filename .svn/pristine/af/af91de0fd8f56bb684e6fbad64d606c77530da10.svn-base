@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.studentmanage.mapper.StudentManageMapper">
+    
+	<sql id="studentManageColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.xsxh AS "xsxh",
+		a.xsxm AS "xsxm",
+		a.yddh AS "yddh",
+		a.yj AS "yj",
+		a.dsxm AS "dsxm",
+		a.gxdm AS "university.gxdm",
+		university.gxmc AS "university.gxmc",
+		a.xwddm AS "degreepointManage.xwddm",
+		degreepointManage.xwdmc AS "degreepointManage.xwdmc",
+		a.zydm AS "specialityManage.zydm",
+		specialityManage.zymc AS "specialityManage.zymc",
+		a.remarks AS "remarks"
+	</sql>
+	
+	<sql id="studentManageJoins">
+		
+		LEFT JOIN t_university_c university ON university.gxdm = a.gxdm
+		LEFT JOIN t_degreepoint_c degreepointManage ON degreepointManage.xwddm = a.xwddm
+		LEFT JOIN t_speciality_c specialityManage ON specialityManage.zydm = a.zydm
+	</sql>
+	
+    
+	<select id="get" resultType="StudentManage" >
+		SELECT 
+			<include refid="studentManageColumns"/>
+		FROM t_student_manage a
+		<include refid="studentManageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="StudentManage" >
+		SELECT 
+			<include refid="studentManageColumns"/>
+		FROM t_student_manage a
+		<include refid="studentManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="xsxh != null and xsxh != ''">
+				AND a.xsxh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xsxh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xsxh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xsxh},'%')</if>
+			</if>
+			<if test="xsxm != null and xsxm != ''">
+				AND a.xsxm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xsxm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xsxm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xsxm},'%')</if>
+			</if>
+			<if test="yddh != null and yddh != ''">
+				AND a.yddh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{yddh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{yddh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{yddh},'%')</if>
+			</if>
+			<if test="yj != null and yj != ''">
+				AND a.yj LIKE 
+					<if test="dbName == 'oracle'">'%'||#{yj}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{yj}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{yj},'%')</if>
+			</if>
+			<if test="dsxm != null and dsxm != ''">
+				AND a.dsxm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{dsxm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{dsxm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{dsxm},'%')</if>
+			</if>
+			<if test="degreepointManage != null and degreepointManage.xwddm != null and degreepointManage.xwddm != ''">
+				AND a.xwddm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{degreepointManage.xwddm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{degreepointManage.xwddm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{degreepointManage.xwddm},'%')</if>
+			</if>
+			<if test="specialityManage != null and specialityManage.zydm != null and specialityManage.zydm != ''">
+				AND a.zydm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{specialityManage.zydm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{specialityManage.zydm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{specialityManage.zydm},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="StudentManage" >
+		SELECT 
+			<include refid="studentManageColumns"/>
+		FROM t_student_manage a
+		<include refid="studentManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_student_manage(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			xsxh,
+			xsxm,
+			yddh,
+			yj,
+			dsxm,
+			gxdm,
+			xwddm,
+			zydm,
+			remarks
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{xsxh},
+			#{xsxm},
+			#{yddh},
+			#{yj},
+			#{dsxm},
+			#{university.gxdm},
+			#{degreepointManage.xwddm},
+			#{specialityManage.zydm},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_student_manage SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			xsxh = #{xsxh},
+			xsxm = #{xsxm},
+			yddh = #{yddh},
+			yj = #{yj},
+			dsxm = #{dsxm},
+			gxdm = #{university.gxdm},
+			xwddm = #{degreepointManage.xwddm},
+			zydm = #{specialityManage.zydm},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_student_manage
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_student_manage SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="StudentManage" statementType="STATEMENT">
+		select * FROM t_student_manage  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

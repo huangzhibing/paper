@@ -1,0 +1,88 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.craw.craw.entity;
+
+
+import com.jeeplus.core.persistence.DataEntity;
+import com.jeeplus.common.utils.excel.annotation.ExcelField;
+
+import java.util.Map;
+
+/**
+ * 爬虫任务Entity
+ * @author M1ngz
+ * @version 2018-08-19
+ */
+public class CrawTask extends DataEntity<CrawTask> {
+	
+	private static final long serialVersionUID = 1L;
+	private String taskName;		// 任务名称
+	private String helpUrl;		// 目标入口URL
+	private String targetUrl;		// 目标URL
+	private String xpath;		// 爬取Xpath
+	private String name;		// 爬取信息名
+	private Map<String,String> map;
+
+	public Map<String, String> getMap() {
+		return map;
+	}
+
+	public void setMap(Map<String, String> map) {
+		this.map = map;
+	}
+
+	public CrawTask() {
+		super();
+	}
+
+	public CrawTask(String id){
+		super(id);
+	}
+
+	@ExcelField(title="任务名称", align=2, sort=7)
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
+	}
+	
+	@ExcelField(title="目标入口URL", align=2, sort=8)
+	public String getHelpUrl() {
+		return helpUrl;
+	}
+
+	public void setHelpUrl(String helpUrl) {
+		this.helpUrl = helpUrl;
+	}
+	
+	@ExcelField(title="目标URL", align=2, sort=9)
+	public String getTargetUrl() {
+		return targetUrl;
+	}
+
+	public void setTargetUrl(String targetUrl) {
+		this.targetUrl = targetUrl;
+	}
+	
+	@ExcelField(title="爬取Xpath", align=2, sort=10)
+	public String getXpath() {
+		return xpath;
+	}
+
+	public void setXpath(String xpath) {
+		this.xpath = xpath;
+	}
+	
+	@ExcelField(title="爬取信息名", align=2, sort=11)
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+}

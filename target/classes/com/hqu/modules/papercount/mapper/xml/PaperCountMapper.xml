@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.papercount.mapper.PaperCountMapper">
+    
+	<sql id="paperColumns">
+
+		a.create_date AS "createDate",
+
+		a.lwmc AS "LWMC",
+
+		a.lwlxdm AS "LWLXDM",
+		a.lwztdm AS "LWZTDM",
+
+		gx.gxmc AS "gxmc"
+	</sql>
+	
+	<sql id="paperJoins">
+       JOIN t_student_manage st ON a.xsxh = st.xsxh
+       JOIN t_university_c gx ON st.gxdm = gx.gxdm
+	</sql>
+	
+    
+<!--	<select id="get" resultType="PaperCount" >
+		SELECT
+			<include refid="paperColumns"/>
+		FROM
+		<include refid="paperJoins"/>
+		WHERE a.id = #{id}
+	</select>-->
+	
+	<select id="findList" resultType="PaperCount" >
+		SELECT 
+			<include refid="paperColumns"/>
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginCreateDate != null and endCreateDate != null ">
+				AND a.create_date &gt;= #{beginCreateDate} AND a.create_date &lt; #{endCreateDate}
+			</if>
+			<if test="LWMC != null and LWMC != ''">
+				AND a.lwmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{LWMC}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{LWMC}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{LWMC},'%')</if>
+			</if>
+             <if test="LWZTDM != null and  LWZTDM == 'ab'">
+                AND (a.lwztdm = 'b' OR a.lwztdm = 'c')
+            </if> 
+			<if test="LWZTDM != null and LWZTDM != '' and LWZTDM != 'ab'">
+				AND a.lwztdm = #{LWZTDM}
+			</if>
+			<if test="LWLXDM != null and LWLXDM != ''">
+				AND a.lwlxdm = #{LWLXDM}
+			</if>
+		</where>
+	</select>
+
+	<select id="getScName" parameterType="PaperCount" resultType="PaperCount" >
+		SELECT distinct gx.gxmc AS "gxmc"
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginCreateDate != null and endCreateDate != null ">
+				AND a.create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+			</if>
+			<if test="LWMC != null and LWMC != ''">
+				AND a.lwmc LIKE
+				<if test="dbName == 'oracle'">'%'||#{LWMC}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{LWMC}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{LWMC},'%')</if>
+			</if>
+			<if test="LWZTDM != null and  LWZTDM == 'ab'">
+				AND (a.lwztdm = 'b' OR a.lwztdm = 'c')
+			</if>
+			<if test="LWZTDM != null and LWZTDM != '' and LWZTDM != 'ab'">
+				AND a.lwztdm = #{LWZTDM}
+			</if>
+			<if test="LWLXDM != null and LWLXDM != ''">
+				AND a.lwlxdm = #{LWLXDM}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="PaperCount" >
+		SELECT 
+			<include refid="paperColumns"/>
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_paper(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			lwbh,
+			lwmc,
+			xsxh,
+			lwwj,
+			lwlxdm,
+			lwztdm
+		) VALUES (
+			#{id},
+			#{createBy.no},
+			#{createDate},
+			#{updateBy.no},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{LWBH},
+			#{LWMC},
+			#{XSXH.xsxh},
+			#{LWWJ},
+			#{LWLXDM},
+			#{LWZTDM}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_paper SET 	
+			update_by = #{updateBy.no},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			lwbh = #{LWBH},
+			lwmc = #{LWMC},
+			xsxh = #{XSXH.xsxh},
+			lwwj = #{LWWJ},
+			lwlxdm = #{LWLXDM},
+			lwztdm = #{LWZTDM},
+			jfddh = #{jfddh}
+		WHERE id = #{id}
+	</update>
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_paper
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_paper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PaperCount" statementType="STATEMENT">
+		select * FROM t_paper  where ${propertyName} = '${value}'
+	</select>
+	<select id="selectOneType_Paper" parameterType="java.util.Map" resultType="int" statementType="STATEMENT">
+		select count(*)FROM t_paper
+		JOIN t_student_manage ON t_paper.xsxh = t_student_manage.xsxh
+        JOIN t_university_c ON t_student_manage.gxdm = t_university_c.gxdm
+		where t_paper.lwlxdm = ${lwlxdm} and t_student_manage.gxdm = ${gxdm} and t_paper.lwztdm = 'f'
+	</select>
+	<select id="selectOneTypePaper" parameterType="java.util.Map" resultType="int" statementType="STATEMENT">
+		select count(*)FROM t_paper
+		JOIN t_student_manage ON t_paper.xsxh = t_student_manage.xsxh
+        JOIN t_university_c ON t_student_manage.gxdm = t_university_c.gxdm
+		where t_student_manage.gxdm = ${gxdm}  and t_paper.lwlxdm = ${lwlxdm} and lwztdm = ${lwztdm} and  ${create_date} &gt;= ${beginDate} and ${create_date} &lt; ${endDate}
+	</select>
+	
+</mapper>

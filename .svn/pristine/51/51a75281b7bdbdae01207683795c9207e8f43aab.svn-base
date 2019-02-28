@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.customermanage.secretarymanage.mapper.SecretaryManageMapper">
+    
+	<sql id="secretaryManageColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.msdm AS "msdm",
+		a.msxm AS "msxm",
+		a.yddh AS "yddh",
+		a.yj AS "yj",
+		a.gxdm AS "university.gxdm",
+		university.gxmc AS "university.gxmc",
+		a.remarks AS "remarks"
+	</sql>
+	
+	<sql id="secretaryManageJoins">
+		
+		LEFT JOIN t_university_c university ON university.gxdm = a.gxdm
+	</sql>
+	
+    
+	<select id="get" resultType="SecretaryManage" >
+		SELECT 
+			<include refid="secretaryManageColumns"/>
+		FROM t_secretary_manage a
+		<include refid="secretaryManageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SecretaryManage" >
+		SELECT 
+			<include refid="secretaryManageColumns"/>
+		FROM t_secretary_manage a
+		<include refid="secretaryManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="msdm != null and msdm != ''">
+				AND a.msdm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{msdm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{msdm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{msdm},'%')</if>
+			</if>
+			<if test="msxm != null and msxm != ''">
+				AND a.msxm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{msxm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{msxm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{msxm},'%')</if>
+			</if>
+			<if test="yddh != null and yddh != ''">
+				AND a.yddh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{yddh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{yddh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{yddh},'%')</if>
+			</if>
+			<if test="yj != null and yj != ''">
+				AND a.yj LIKE 
+					<if test="dbName == 'oracle'">'%'||#{yj}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{yj}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{yj},'%')</if>
+			</if>
+			<if test="university != null and university.gxdm != null and university.gxdm != ''">
+				AND a.gxdm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{university.gxdm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{university.gxdm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{university.gxdm},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SecretaryManage" >
+		SELECT 
+			<include refid="secretaryManageColumns"/>
+		FROM t_secretary_manage a
+		<include refid="secretaryManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_secretary_manage(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			msdm,
+			msxm,
+			yddh,
+			yj,
+			gxdm,
+			remarks
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{msdm},
+			#{msxm},
+			#{yddh},
+			#{yj},
+			#{university.gxdm},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_secretary_manage SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			msdm = #{msdm},
+			msxm = #{msxm},
+			yddh = #{yddh},
+			yj = #{yj},
+			gxdm = #{university.gxdm},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_secretary_manage
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_secretary_manage SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SecretaryManage" statementType="STATEMENT">
+		select * FROM t_secretary_manage  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

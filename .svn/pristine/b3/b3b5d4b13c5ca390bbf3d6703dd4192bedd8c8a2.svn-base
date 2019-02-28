@@ -1,0 +1,144 @@
+<%--
+  Created by IntelliJ IDEA.
+  User: M1ngz
+  Date: 2018/9/24
+  Time: 23:04
+  To change this template use File | Settings | File Templates.
+--%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>专家地图</title>
+    <script src="https://webapi.amap.com/loca?key=66faf1efcf7152452715ae97b9b94ce0"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <%--<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.4.10&key=66faf1efcf7152452715ae97b9b94ce0&plugin=AMap.Autocomplete,AMap.PlaceSearch"></script>--%>
+    <style>
+        .info {
+            background: #363F49;
+            color: #A0A7B4;
+            padding: 10px;
+            max-width: 300px;
+            min-width: 200px;
+            font-size: 12px;
+        }
+
+        .info tr .content {
+            text-align: right;
+            color: #D3D8E0;
+            max-width: 200px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id='map' style='width:100%; height:100%;'></div>
+    <script>
+        var infoWin;
+        var tableDom;
+        /**
+         * 封装便捷的撞题
+         * @param {AMap.Map} map
+         * @param {Array} event
+         * @param {Object} content
+         */
+        function openInfoWin(map, event, content) {
+            if (!infoWin) {
+                infoWin = new AMap.InfoWindow({
+                    isCustom: true,  //使用自定义窗体
+                    offset: new AMap.Pixel(130, 100)
+                });
+            }
+
+            var x = event.offsetX;
+            var y = event.offsetY;
+            var lngLat = map.containerToLngLat(new AMap.Pixel(x, y));
+
+            if (!tableDom) {
+                let infoDom = document.createElement('div');
+                infoDom.className = 'info';
+                tableDom = document.createElement('table');
+                infoDom.appendChild(tableDom);
+                infoWin.setContent(infoDom);
+            }
+
+            var trStr = '';
+            for (var name in content) {
+                var val = content[name];
+                trStr +=
+                    '<tr>' +
+                    '<td class="label">' + name + '</td>' +
+                    '<td>&nbsp;</td>' +
+                    '<td class="content">' + val + '</td>' +
+                    '</tr>'
+            }
+
+            tableDom.innerHTML = trStr;
+            infoWin.open(map, lngLat);
+        }
+
+        function closeInfoWin() {
+            if (infoWin) {
+                infoWin.close();
+            }
+        }
+    </script>
+    <script>
+        var map = new  Loca('map', {
+            mapStyle: 'amap://styles/grey',
+            zoom: 5,
+            center: [107.4976,32.1697]
+        });
+        var layer = Loca.visualLayer({
+            eventSupport: true,    // 开启事件
+            container: map,
+            type: 'point',
+            shape: 'circle'
+        });
+
+        layer.on('mousemove', function (ev) {
+            // 事件类型
+            var type = ev.type;
+            // 当前元素的原始数据
+            var rawData = ev.rawData;
+            // 原始鼠标事件
+            var originalEvent = ev.originalEvent;
+
+            openInfoWin(map.getMap(), originalEvent, {
+                '名称': rawData.name,
+                '专家数量': rawData.count
+            });
+        });
+        layer.on('mouseleave', function (ev) {
+            closeInfoWin();
+        });
+        $.get("/a/university/university/mapData",function(res) {
+            console.log(res);
+            var data = JSON.parse(res);
+            console.log(data)
+            layer.setData(data, {
+                type: 'json',
+                lnglat: 'center'
+            });
+            layer.setOptions({
+                style: {
+                    radius: 10,
+                    fill: '#4fc2ff',
+                    lineWidth: 1.5,
+                    stroke: '#ffffff',
+                    opacity: 0.8
+                },
+                selectStyle: {
+                    radius: 14,
+                    fill: '#ffe30a'
+                }
+            });
+
+            layer.render();
+        })
+/*        layer.setData(districts, {
+            lnglat: 'center'
+        });*/
+
+    </script>
+</body>
+</html>

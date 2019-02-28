@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.university.mapper.UniversityMapper">
+    
+	<sql id="universityColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.gxdm AS "gxdm",
+		a.gxmc AS "gxmc"
+	</sql>
+	
+	<sql id="universityJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="University" >
+		SELECT 
+			<include refid="universityColumns"/>
+		FROM t_university_c a
+		<include refid="universityJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="University" >
+		SELECT 
+			<include refid="universityColumns"/>
+		FROM t_university_c a
+		<include refid="universityJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="gxdm != null and gxdm != ''">
+				AND a.gxdm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{gxdm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{gxdm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{gxdm},'%')</if>
+			</if>
+			<if test="gxmc != null and gxmc != ''">
+				AND a.gxmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{gxmc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{gxmc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{gxmc},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="University" >
+		SELECT 
+			<include refid="universityColumns"/>
+		FROM t_university_c a
+		<include refid="universityJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_university_c(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			gxdm,
+			gxmc
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{gxdm},
+			#{gxmc}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_university_c SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			gxdm = #{gxdm},
+			gxmc = #{gxmc}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_university_c
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_university_c SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="University" statementType="STATEMENT">
+		select * FROM t_university_c  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

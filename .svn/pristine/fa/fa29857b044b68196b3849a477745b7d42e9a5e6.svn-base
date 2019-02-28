@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.degreepoint.mapper.DegreepointManageMapper">
+    
+	<sql id="degreepointManageColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.xxxwddm AS "xxxwddm",
+		a.xxdm AS "xxdm",
+		a.xxmc AS "xxmc",
+		a.xwddm AS "xwddm",
+		a.xwdmc AS "xwdmc",
+		a.sqjb AS "sqjb"
+	</sql>
+	
+	<sql id="degreepointManageJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="DegreepointManage" >
+		SELECT 
+			<include refid="degreepointManageColumns"/>
+		FROM t_degreepoint_c a
+		<include refid="degreepointManageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DegreepointManage" >
+		SELECT 
+			<include refid="degreepointManageColumns"/>
+		FROM t_degreepoint_c a
+		<include refid="degreepointManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="xxxwddm != null and xxxwddm != ''">
+				AND a.xxxwddm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xxxwddm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xxxwddm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xxxwddm},'%')</if>
+			</if>
+			<if test="xxdm != null and xxdm != ''">
+				AND a.xxdm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xxdm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xxdm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xxdm},'%')</if>
+			</if>
+			<if test="xxmc != null and xxmc != ''">
+				AND a.xxmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xxmc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xxmc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xxmc},'%')</if>
+			</if>
+			<if test="xwddm != null and xwddm != ''">
+				AND a.xwddm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xwddm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xwddm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xwddm},'%')</if>
+			</if>
+			<if test="xwdmc != null and xwdmc != ''">
+				AND a.xwdmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{xwdmc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{xwdmc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{xwdmc},'%')</if>
+			</if>
+			<if test="sqjb != null and sqjb != ''">
+				AND a.sqjb LIKE 
+					<if test="dbName == 'oracle'">'%'||#{sqjb}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{sqjb}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{sqjb},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DegreepointManage" >
+		SELECT 
+			<include refid="degreepointManageColumns"/>
+		FROM t_degreepoint_c a
+		<include refid="degreepointManageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_degreepoint_c(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			xxxwddm,
+			xxdm,
+			xxmc,
+			xwddm,
+			xwdmc,
+			sqjb
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{xxxwddm},
+			#{xxdm},
+			#{xxmc},
+			#{xwddm},
+			#{xwdmc},
+			#{sqjb}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_degreepoint_c SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			xxxwddm = #{xxxwddm},
+			xxdm = #{xxdm},
+			xxmc = #{xxmc},
+			xwddm = #{xwddm},
+			xwdmc = #{xwdmc},
+			sqjb = #{sqjb}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_degreepoint_c
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_degreepoint_c SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DegreepointManage" statementType="STATEMENT">
+		select * FROM t_degreepoint_c  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

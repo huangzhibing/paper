@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.feedback.mapper.FeedbackMapper">
+    
+	<sql id="feedbackColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.fklsh AS "fklsh",
+		a.fklxdm AS "fklxdm",
+		a.fksj AS "fksj",
+		a.fknr AS "fknr",
+		a.fkr AS "fkr",
+		a.hfsj AS "hfsj",
+		a.hfnr AS "hfnr",
+		a.hfr AS "hfr"
+	</sql>
+	
+	<sql id="feedbackJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM t_feedback a
+		<include refid="feedbackJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM t_feedback a
+		<include refid="feedbackJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="fklsh != null and fklsh != ''">
+				AND a.fklsh = #{fklsh}
+			</if>
+			<if test="fklxdm != null and fklxdm != ''">
+				AND a.fklxdm = #{fklxdm}
+			</if>
+			<if test="fksj != null and fksj != ''">
+				AND a.fksj = #{fksj}
+			</if>
+			<if test="fknr != null and fknr != ''">
+				AND a.fknr = #{fknr}
+			</if>
+			<if test="fkr != null and fkr != ''">
+				AND a.fkr = #{fkr}
+			</if>
+			<if test="hfsj != null and hfsj != ''">
+				AND a.hfsj = #{hfsj}
+			</if>
+			<if test="hfnr != null and hfnr != ''">
+				AND a.hfnr = #{hfnr}
+			</if>
+			<if test="hfr != null and hfr != ''">
+				AND a.hfr = #{hfr}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Feedback" >
+		SELECT 
+			<include refid="feedbackColumns"/>
+		FROM t_feedback a
+		<include refid="feedbackJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_feedback(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			fklsh,
+			fklxdm,
+			fksj,
+			fknr,
+			fkr,
+			hfsj,
+			hfnr,
+			hfr
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{fklsh},
+			#{fklxdm},
+			#{fksj},
+			#{fknr},
+			#{fkr},
+			#{hfsj},
+			#{hfnr},
+			#{hfr}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_feedback SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			fklsh = #{fklsh},
+			fklxdm = #{fklxdm},
+			fksj = #{fksj},
+			fknr = #{fknr},
+			fkr = #{fkr},
+			hfsj = #{hfsj},
+			hfnr = #{hfnr},
+			hfr = #{hfr}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_feedback
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_feedback SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+    <!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+    <select id="findUniqueByProperty" resultType="Feedback" statementType="STATEMENT">
+		select * FROM t_feedback  where ${propertyName} = '${value}'
+	</select>
+    <select id="findmax" resultType="String">
+		select max(fklsh)from t_feedback
+	</select>
+	
+</mapper>
