@@ -1,0 +1,125 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.customermanage.expertmanagement.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.hqu.modules.customermanage.expertmanagement.mapper.ExpertMapper;
+import com.jeeplus.common.beanvalidator.BeanValidators;
+import com.jeeplus.common.config.Global;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.modules.sys.entity.Office;
+import com.jeeplus.modules.sys.entity.Role;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.service.SystemService;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+
+/**
+ * 专家信息表Service
+ * @author 黄志兵
+ * @version 2018-08-28
+ */
+@Service
+@Transactional(readOnly = true)
+public class ExpertService extends CrudService<ExpertMapper, Expert> {
+	@Autowired
+	ExpertMapper expertMapper;
+	@Autowired
+	SystemService systemService;
+
+	public Expert get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Expert> findList(Expert expert) {
+		return super.findList(expert);
+	}
+	
+	public Page<Expert> findPage(Page<Expert> page, Expert expert) {
+		return super.findPage(page, expert);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Expert expert) {
+		super.save(expert);
+	}
+
+	@Transactional(readOnly = false)
+	public void newUser(Expert expert){
+		User user = new User();
+		//设置专家管理员照片
+		user.setPhoto("/paper/userfiles/1/程序附件//photo/2018/9/timg.jpg");
+		//设置专家管理员部门
+		Office office = new Office();
+		office.setId(Global.getConfig("OFFICE_ID"));
+		user.setOffice(office);
+
+		//设置专家所在公司为总公司
+		Office company = new Office();
+		company.setId(Global.getConfig("COMPANY_ID"));
+		user.setCompany(company);
+		//设置专家管理员登陆账号
+		user.setLoginName(expert.getYHZH());
+		//设置专家管理员照片
+		user.setPassword(systemService.entryptPassword(Global.getConfig("PASS_WORD")));
+//		BeanValidators.validateWithException(validator, user);
+		//设置专家管理员姓名
+		user.setName(expert.getZJXM());
+
+		//设置专家对应角色
+		Role role = systemService.getRole(Global.getConfig("ROLE_ID"));
+		user.setRole(role);
+		List<Role> roleList = new ArrayList<>();
+		roleList.add(role);
+		user.setRoleList(roleList);
+
+		systemService.saveUser(user);
+		//清空用户缓存
+		UserUtils.clearCache(user);
+	}
+	@Transactional(readOnly = false)
+	public void delete(Expert expert) {
+		super.delete(expert);
+	}
+	public int selectOneType_Expert(String dwdm,String zjlxdm){
+		Map<String,Object> objectMap = new HashMap<>();
+		objectMap.put("dwdm",dwdm);
+		objectMap.put("zjlxdm",zjlxdm);
+		return expertMapper.selectOneType_Expert(objectMap);
+	}
+	public int selectOneTypeExpert(String dwdm,String zjlxdm,String beginDate,String endDate,String zjztdm,String xbdm){
+		Map<String,Object> objectMap = new HashMap<>();
+		objectMap.put("dwdm",dwdm);
+		objectMap.put("zjlxdm",zjlxdm);
+		objectMap.put("beginDate",beginDate);
+		objectMap.put("endDate",endDate);
+		objectMap.put("zjztdm",zjztdm);
+		objectMap.put("xbdm",xbdm);
+		return expertMapper.selectOneTypeExpert(objectMap);
+	}
+
+	public int getExpertByDate(Map<String,Object> map){
+		int num = expertMapper.getExpertByDate(map);
+		return num;
+	}
+
+	@Transactional
+	public void saveBankInfo(Expert expert){
+		 if(StringUtils.isBlank(expert.getYhkh())){
+		 	expertMapper.insertBankInfo(expert);
+		 }else {
+		 	expertMapper.updateBankInfo(expert);
+		 }
+	}
+}

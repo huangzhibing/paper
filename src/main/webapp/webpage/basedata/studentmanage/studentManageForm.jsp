@@ -7,6 +7,10 @@
 	<script type="text/javascript">
 
 		$(document).ready(function() {
+		    $("#test").val($("#universityId").val())
+			$("#universityNames").change(function () {
+                $("#test").val($("#universityId").val())
+            })
 			jp.ajaxForm("#inputForm",function(data){
 				if(data.success){
 				    jp.success(data.msg);
@@ -43,8 +47,8 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>学生学号：</label>
 					<div class="col-sm-10"  style="display: inline-flex">
-						<form:input path="xsxh" htmlEscape="false" readonly="true" class="form-control required form-control-xsxh"/>
-						<input name="xsdm_input" placeholder="请输入学生学号" type="text" style="width: 100%"/>
+						<input id="test" readonly="true" class="form-control form-control-xsxh"/>
+						<input name="xsxh" value="${fn:substring(studentManage.xsxh,fn:length(studentManage.university.gxdm),fn:length(studentManage.xsxh))}" placeholder="请输入学生学号" type="text" style="width: 100%"/>
 					</div>
 				</div>
 				<div class="form-group">
@@ -74,21 +78,24 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>高校名称：</label>
 					<div class="col-sm-10">
-						<sys:gridselect url="${ctx}/university/university/data" id="university" name="university.gxdm" value="${studentManage.university.gxdm}" labelName="university.gxmc" labelValue="${studentManage.university.gxdm}"
-							 title="选择高校" cssClass="form-control required" fieldLabels="高校代码|高校名称" fieldKeys="gxdm|gxmc" searchLabels="高校代码|高校名称" searchKeys="gxdm|gxmc" ></sys:gridselect>
+						<sys:gridselect-item url="${ctx}/university/university/data" id="university" name="university.gxdm" value="${studentManage.university.gxdm}" labelName="university.gxmc" labelValue="${studentManage.university.gxmc}"
+							 title="选择高校" cssClass="form-control required" fieldLabels="高校代码|高校名称" fieldKeys="gxdm|gxmc" searchLabels="高校代码|高校名称" searchKeys="gxdm|gxmc"
+								extraField="universityId:gxdm;universityNames:gxmc"
+						></sys:gridselect-item>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>学位点名称：</label>
 					<div class="col-sm-10">
-						<sys:gridselect url="${ctx}/degreepoint/degreepointManage/data" id="degreepointManage" name="degreepointManage.xwddm" value="${studentManage.degreepointManage.xwddm}" labelName="degreepointManage.xwdmc" labelValue="${studentManage.degreepointManage.xwddm}"
-							 title="选择学位点" cssClass="form-control required" fieldLabels="学位点代码|学位点名称" fieldKeys="xwddm|xwdmc" searchLabels="学位点代码|学位点名称" searchKeys="xwddm|xwdmc" ></sys:gridselect>
+						<sys:gridselect url="${ctx}/degreepoint/degreepointManage/data" id="degreepointManage" name="degreepointManage.xwddm" value="${studentManage.degreepointManage.xwddm}" labelName="degreepointManage.xwdmc" labelValue="${studentManage.degreepointManage.xwdmc}"
+							 title="选择学位点" cssClass="form-control required" fieldLabels="学位点代码|学位点名称" fieldKeys="xwddm|xwdmc" searchLabels="学位点代码|学位点名称" searchKeys="xwddm|xwdmc"
+						></sys:gridselect>
 					</div>
 				</div>
 				<div class="form-group">
 					<label class="col-sm-2 control-label">专业名称：</label>
 					<div class="col-sm-10">
-						<sys:gridselect url="${ctx}/specialitymanage/specialityManage/data" id="specialityManage" name="specialityManage.zydm" value="${studentManage.specialityManage.zydm}" labelName="specialityManage.zymc" labelValue="${studentManage.specialityManage.zydm}"
+						<sys:gridselect url="${ctx}/specialitymanage/specialityManage/data" id="specialityManage" name="specialityManage.zydm" value="${studentManage.specialityManage.zydm}" labelName="specialityManage.zymc" labelValue="${studentManage.specialityManage.zymc}"
 							 title="选择专业" cssClass="form-control " fieldLabels="专业代码|专业名称" fieldKeys="zydm|zymc" searchLabels="专业代码|专业名称" searchKeys="zydm|zymc" ></sys:gridselect>
 					</div>
 				</div>

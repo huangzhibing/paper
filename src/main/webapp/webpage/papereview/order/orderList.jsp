@@ -59,6 +59,7 @@
 						<option value="a">已上传</option>
 						<option value="b" selected="selected">已缴费</option>
 						<option value="c">已指派专家</option>
+						<option value="d">已拒收</option>
 					</select>
 				</div>
 				<div class="col-xs-12 col-sm-6 col-md-4">
@@ -91,8 +92,13 @@
 			</shiro:hasPermission>
 			<shiro:hasPermission name="order:order:edit">
 			    <button id="edit" class="btn btn-success" disabled onclick="edit()">
-	            	<i class="glyphicon glyphicon-edit"></i> 指派
+	            	<i class="glyphicon glyphicon-edit"></i> 额外指派
 	        	</button>
+			</shiro:hasPermission>
+			<shiro:hasPermission name="order:order:edit">
+				<button id="edit" class="btn btn-success" disabled onclick="reEdit()">
+					<i class="glyphicon glyphicon-edit"></i> 重新指派
+				</button>
 			</shiro:hasPermission>
 			<%--<shiro:hasPermission name="order:order:del">--%>
 				<%--<button id="remove" class="btn btn-danger" disabled onclick="deleteAll()">--%>

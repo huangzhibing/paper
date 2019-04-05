@@ -95,7 +95,6 @@ $(document).ready(function(){
 			    	 $("#${id}Id").trigger("change");
 					 $("#${targetId}").val(targetValue.join(","));
 			    	 $("#${id}Names").val(names.join(","));
-                     $("#${id}Names").trigger("change");
                      if (fieldArr) {
                          for(var j = 0;j<fieldArr.length;j++) {
                         	 try{
@@ -116,7 +115,7 @@ $(document).ready(function(){
                          }
                      }
 		    	 }
-		    		
+                $("#${id}Names").trigger("change");
 				 top.layer.close(index);//关闭对话框。
 			  },
 			  cancel: function(index){ 

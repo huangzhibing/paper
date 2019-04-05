@@ -17,6 +17,25 @@
 				}
 			});
 
+			$('#jieshou').click(function () {
+				top.layer.open({
+					type: 2,
+					area: ['800px','500px'],
+					title: "论文信息",
+					auto: true,
+					name: 'friend',
+					content:'${ctx}/receive/receive/getPaperInfo?paper'+$('#inputForm').serialize(),
+                    btn: ['接收完毕'],
+                    yes: function(index, layero){
+                        jp.go("${ctx}/daishenpaper/daishenPaper");
+                        top.layer.close(index);//关闭对话框。
+					},
+					cancel: function(index){
+
+					}
+                });
+            })
+
 		});
 	</script>
 </head>
@@ -48,7 +67,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>论文摘要：</label>
 					<div class="col-sm-10">
-						<form:textarea path="lwzy"  readonly="true" class="form-control required"/>
+						<form:textarea path="lwzy" rows="12" readonly="true" class="form-control required"/>
 					</div>
 				</div>
 
@@ -58,8 +77,8 @@
 			<div class="col-lg-3">
 				<div class="form-group text-center">
 					<div>
-						<button  name="jieshou" value="true" class="btn btn-primary btn-lg btn-parsley" data-loading-text="正在接受...">接 收</button>
-						<button  name="jushou" value="true" class="btn btn-primary btn-lg btn-parsley" data-loading-text="正在拒收...">拒 收</button>
+						<button type="button" id="jieshou" name="jieshou" value="true" class="btn btn-primary btn-lg btn-parsley" data-loading-text="正在接受...">接 收</button>
+						<button id="jushou" name="jushou" value="true" class="btn btn-primary btn-lg btn-parsley" data-loading-text="正在拒收...">拒 收</button>
 					</div>
 				</div>
 			</div>

@@ -157,12 +157,12 @@
 						<form:input path="EJXY" htmlEscape="false"    class="form-control "/>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="col-sm-2 control-label"><font color="red">*</font> 最高学位：</label>
-					<div class="col-sm-10">
-						<form:input path="ZJXW" htmlEscape="false"    class="form-control required"/>
-					</div>
-				</div>
+				<%--<div class="form-group">--%>
+					<%--<label class="col-sm-2 control-label"><font color="red">*</font> 最高学位：</label>--%>
+					<%--<div class="col-sm-10">--%>
+						<%--<form:input path="ZJXW" htmlEscape="false"    class="form-control required"/>--%>
+					<%--</div>--%>
+				<%--</div>--%>
 				<div class="form-group">
 					<label class="col-sm-2 control-label">毕业院校：</label>
 					<div class="col-sm-10">

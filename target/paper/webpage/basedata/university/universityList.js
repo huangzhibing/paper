@@ -30,8 +30,8 @@ $(document).ready(function() {
                pagination: true,   
                 //排序方式 
                sortOrder: "asc",
-				//按照什么来排序
-				sortName:"gxdm",
+				//默认是高校代码升序
+        		sortName:"gxdm",
                //初始化加载第一页，默认第一页
                pageNumber:1,   
                //每页的记录行数（*）   
@@ -126,6 +126,20 @@ $(document).ready(function() {
 		        title: '高校经度',
 		        sortable: true,
 		        sortName: 'gxjd'
+		       
+		    }
+			,{
+		        field: 'whetheris985',
+		        title: '是否是985',
+		        sortable: true,
+		        sortName: 'whetheris985'
+		       
+		    }
+			,{
+		        field: 'whetheris211',
+		        title: '是否是211',
+		        sortable: true,
+		        sortName: 'whetheris211'
 		       
 		    }
 		     ]

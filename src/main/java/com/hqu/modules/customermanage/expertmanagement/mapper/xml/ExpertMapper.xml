@@ -328,7 +328,14 @@
 		select count(*)FROM t_expert where  zjlxdm = ${zjlxdm} and dwdm = ${dwdm}
 	</select>
 	<select id="selectOneTypeExpert" parameterType="java.util.Map" resultType="int" statementType="STATEMENT">
-		select count(*)FROM t_expert  where dwdm = ${dwdm}  and zjlxdm = ${zjlxdm} and zjztdm = ${zjztdm} and xbdm = ${xbdm} and ${create_date} &gt;= ${beginDate} and ${create_date} &lt; ${endDate}
+		select count(*)FROM t_expert
+			 <where>
+				<if test="dwdm!=null||dwdm!=''"> and dwdm = ${dwdm}</if>
+				<if test="zjlxdm!=null || zjlxdm!=''">and zjlxdm = ${zjlxdm}</if>
+				<if test="xbdm!=null||xbdm!=''">and xbdm = ${xbdm}</if>
+				<if test="beginDate!=null ||beginDate!=''">and create_date &gt;= '${beginDate}'</if>
+				<if test="endDate!=null||endDate!=''">and create_date &lt; '${endDate}'</if>
+			 </where>
 	</select>
 	<insert id="insertBankInfo">
 		INSERT INTO t_expert(

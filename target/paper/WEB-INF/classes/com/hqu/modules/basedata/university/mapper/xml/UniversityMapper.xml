@@ -13,7 +13,9 @@
 		a.gxdm AS "gxdm",
 		a.gxmc AS "gxmc",
 		a.gxwd AS "gxwd",
-		a.gxjd AS "gxjd"
+		a.gxjd AS "gxjd",
+		a.whetheris985 AS "whetheris985",
+		a.whetheris211 AS "whetheris211"
 	</sql>
 	
 	<sql id="universityJoins">
@@ -51,6 +53,12 @@
 					<if test="dbName == 'oracle'">'%'||#{gxmc}||'%'</if>
 					<if test="dbName == 'mssql'">'%'+#{gxmc}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{gxmc},'%')</if>
+			</if>
+			<if test="whetheris985 != null and whetheris985 != ''">
+				AND a.whetheris985 = #{whetheris985}
+			</if>
+			<if test="whetheris211 != null and whetheris211 != ''">
+				AND a.whetheris211 = #{whetheris211}
 			</if>
 		</where>
 		<choose>
@@ -94,7 +102,9 @@
 			gxdm,
 			gxmc,
 			gxwd,
-			gxjd
+			gxjd,
+			whetheris985,
+			whetheris211
 		) VALUES (
 			#{id},
 			#{createBy.id},
@@ -106,7 +116,9 @@
 			#{gxdm},
 			#{gxmc},
 			#{gxwd},
-			#{gxjd}
+			#{gxjd},
+			#{whetheris985},
+			#{whetheris211}
 		)
 	</insert>
 	
@@ -118,10 +130,18 @@
 			gxdm = #{gxdm},
 			gxmc = #{gxmc},
 			gxwd = #{gxwd},
-			gxjd = #{gxjd}
+			gxjd = #{gxjd},
+			whetheris985 = #{whetheris985},
+			whetheris211 = #{whetheris211}
 		WHERE id = #{id}
 	</update>
-	
+
+	<select id="getByGXMC" resultType="University">
+		select
+			<include refid="universityColumns"/>
+		from t_university_c a
+		where a.gxmc = #{gxmc}
+	</select>
 	
 	<!--物理删除-->
 	<update id="delete">

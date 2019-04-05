@@ -236,6 +236,7 @@
             <version>${spring.version}</version>
         </dependency>
 
+
         <!-- spring websocket-->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -289,12 +290,18 @@
         </dependency>
 
         <!-- 爬虫依赖包 -->
-        <dependency>
+        <!--<dependency>
             <groupId>us.codecraft</groupId>
             <artifactId>webmagic-selenium</artifactId>
             <version>0.5.2</version>
-        </dependency>
+        </dependency>-->
 
+        <!-- 汉字转拼音 -->
+        <dependency>
+            <groupId>com.belerweb</groupId>
+            <artifactId>pinyin4j</artifactId>
+            <version>2.5.0</version>
+        </dependency>
 
         <!-- connection pool -->
         <dependency>

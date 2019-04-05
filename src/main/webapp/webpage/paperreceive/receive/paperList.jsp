@@ -18,8 +18,23 @@
             }
 
             $('#downloadBtn').click(function () {
-                window.open("${orderBytqm.lw.LWWJ}");
-                window.close();
+                if("${orderBytqm.lw.LWWJ}" != ""){
+                    window.open("${orderBytqm.lw.LWWJ}");
+                    window.close();
+                    var paperId = "${paper.LWBH}";
+                    jp.get("${ctx}/daishenpaper/daishenPaper/save?jieshou=true"+"&id="+paperId,function (data) {
+                        if(data.success){
+                            jp.success(data.msg);
+                            href = "paperreceive/daishenpaper/daishenPaperList";
+                        }else{
+                            jp.error(data.msg);
+                            href = "paperreceive/daishenpaper/daishenPaperList";
+                        }
+                    })
+                }else {
+                    jp.warning("论文附件为空！");
+                    jp.go("${ctx}/daishenpaper/daishenPaper");
+                }
             });
         });
     </script>
@@ -39,12 +54,7 @@
                 <p id="lwlx" class=""></p>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-2 control-label">学生姓名：</label>
-            <div class="col-sm-10">
-                <p class="">${studentByqty.xsxm}</p>
-            </div>
-        </div>
+
         <div class="form-group">
             <label class="col-sm-2 control-label">所处高校：</label>
             <div class="col-sm-10">

@@ -44,7 +44,7 @@ $(document).ready(function() {
                queryParams : function(params) {
                	var searchParam = $("#searchForm").serializeJSON();
                	searchParam.pageNo = params.limit === undefined? "1" :params.offset/params.limit+1;
-               	searchParam.pageSize = params.limit === undefined? -1 : params.limit;
+               	searchParam.pageSize = -1;
                	searchParam.orderBy = params.sort === undefined? "" : params.sort+ " "+  params.order;
                    return searchParam;
                },
@@ -96,19 +96,6 @@ $(document).ready(function() {
                        title: '论文题目',
                        sortable: true,
                        sortName: 'lwmc'
-
-                   }
-                   ,{
-                       field: 'xsxh.xsxm',
-                       title: '学生姓名',
-                       sortable: true,
-                       sortName: 'xsxh.xsxm'
-                   }
-                   ,{
-                       field: 'xsxh.dsxm',
-                       title: '导师姓名',
-                       sortable: true,
-                       sortName: 'xsxh.dsxm',
 
                    }
                    ,{

@@ -279,12 +279,24 @@ $(document).ready(function() {
 	  jp.go("${ctx}/review/paper/form/edit?id=" + id);
   }
 
-  function view(id) {
-      if(id == undefined){
-          id = getIdSelections();
-      }
-      jp.go("${ctx}/review/paper/form/view?id=" + id);
-  }
+function view(id) {
+    if(id == undefined){
+        id = getIdSelections();
+    }
+    jp.confirm('确认要撤回该评审记录吗？', function(){
+        jp.loading();
+        jp.get("${ctx}/review/paper/withdraw?id=" + id, function(data){
+            if(data.success){
+                $('#paperTable').bootstrapTable('refresh');
+                jp.success(data.msg);
+            }else{
+                jp.error(data.msg);
+            }
+        })
+
+    })
+
+}
 
   function getLwmc() {
     return $.map($("#paperTable").bootstrapTable('getSelections'), function (row) {

@@ -144,15 +144,19 @@ $(document).ready(function() {
 		        field: 'khxm',
 		        title: '学生姓名',
 		        sortable: true,
-		        sortName: 'khxm'
-		       
+		        sortName: 'khxm',
+                       formatter:function(value, row , index){
+                           return "***";
+                       }
 		    }
 			,{
 		        field: 'student.dsxm',
 		        title: '导师姓名',
 		        sortable: true,
 		        sortName: 'student.dsxm',
-		        
+                       formatter:function(value, row , index){
+                           return "***";
+                       }
 		       
 		    }
 			,{
@@ -163,14 +167,7 @@ $(document).ready(function() {
 		        
 		       
 		    }
-			,{
-		        field: 'student.degreepointManage.xwdmc',
-		        title: '学位点名称',
-		        sortable: true,
-		        sortName: 'student.degreepointManage.xwdmc',
-		        
-		       
-		    }
+			
 			,{
 		        field: 'lw.lwlxdm',
 		        title: '论文类型',
@@ -294,7 +291,7 @@ $(document).ready(function() {
       if(id == undefined){
           id = getIdSelections();
       }
-      jp.go("${ctx}/paperReview/review/form/view?id=" + id);
+      jp.go("${ctx}/paperReview/review/withdraw?id=" + id);
   }
 
   function getLwmc() {

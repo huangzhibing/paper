@@ -87,7 +87,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">论文文件：</label>
 					<div class="col-sm-10">
-						<sys:fileUpload fileSizeLimit="10" path="LWWJ"  value="${paper.LWWJ}" type="file" uploadPath="/papermanage/paper"/>
+						<sys:fileUpload fileSizeLimit="100" path="LWWJ"  value="${paper.LWWJ}" type="file" uploadPath="/papermanage/paper"/>
 					</div>
 				</div>
 				

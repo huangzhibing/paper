@@ -30,6 +30,7 @@
                 var beginDate = $('#beginDate input').val();
                 var endDate = $('#endDate input').val();
                 Graph(beginDate,endDate);
+                document.forms[0].target="rfFrame";
             });
         });
         function Graph(beginDate,endDate) {
@@ -133,7 +134,7 @@
 						<div id="lineGraph" style="width:1000px;height:400px;margin:50px auto;" ></div>
 					</div>
 				</div>
-
+					<iframe id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
 
 			</div>
 		</div>

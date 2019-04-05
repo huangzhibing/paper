@@ -29,6 +29,13 @@
 				<label class="label-item single-overflow pull-left" title="秘书姓名：">秘书姓名：</label>
 				<form:input path="msxm" htmlEscape="false" maxlength="20"  class=" form-control"/>
 			</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<label class="label-item single-overflow pull-left" title="秘书类型：">秘书类型：</label>
+					<form:select name="mslx" path="mslx" class="form-control">
+						<form:option value="" label=""/>
+						<form:options items="${fns:getDictList('T_MSLX')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+					</form:select>
+				</div>
 			 <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="移动电话：">移动电话：</label>
 				<form:input path="yddh" htmlEscape="false" maxlength="11"  class=" form-control"/>
@@ -38,10 +45,15 @@
 				<form:input path="yj" htmlEscape="false" maxlength="50"  class=" form-control"/>
 			</div>
 			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<label class="label-item single-overflow pull-left" title="高校代码：">高校代码：</label>
-				<sys:gridselect url="${ctx}/University/university/data" id="university" name="university.gxdm" value="${secretaryManage.university.gxdm}" labelName="university.gxmc" labelValue="${secretaryManage.university.gxdm}"
+				<label class="label-item single-overflow pull-left" title="高校代码：">高校名称：</label>
+				<sys:gridselect url="${ctx}/university/university/data" id="university" name="university.gxdm" value="${secretaryManage.university.gxdm}" labelName="university.gxmc" labelValue="${secretaryManage.university.gxdm}"
 					title="选择高校代码" cssClass="form-control required" fieldLabels="university.gxdm|university.gxmc" fieldKeys="高校代码|高校名称" searchLabels="university.gxdm|university.gxmc" searchKeys="高校代码|高校名称" ></sys:gridselect>
 			</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<label class="label-item single-overflow pull-left" title="高校代码：">高校名称：</label>
+					<sys:gridselect url="${ctx}/departmentmanage/departmentManage/data" id="departmentManage" name="departmentManage.xydm" value="${secretaryManage.departmentManage.xydm}" labelName="departmentManage.xymc" labelValue="${secretaryManage.departmentManage.xymc}"
+									title="选择学院代码" cssClass="form-control " fieldLabels="xydm|xymc" fieldKeys="学院代码|学院名称" searchLabels="xydm|xymc" searchKeys="学院代码|学院名称" ></sys:gridselect>
+				</div>
 		 <div class="col-xs-12 col-sm-6 col-md-4">
 			<div style="margin-top:26px">
 			  <a  id="search" class="btn btn-primary btn-rounded  btn-bordered btn-sm"><i class="fa fa-search"></i> 查询</a>
@@ -58,7 +70,8 @@
 				<button id="add" class="btn btn-primary" onclick="add()">
 					<i class="glyphicon glyphicon-plus"></i> 新建
 				</button>
-			</shiro:hasPermission>
+	</shiro:hasPermission>
+
 			<shiro:hasPermission name="secretarymanage:secretaryManage:edit">
 			    <button id="edit" class="btn btn-success" disabled onclick="edit()">
 	            	<i class="glyphicon glyphicon-edit"></i> 修改

@@ -328,7 +328,14 @@
 		select count(*)FROM t_expert where  zjlxdm = ${zjlxdm} and dwdm = ${dwdm}
 	</select>
 	<select id="selectOneTypeExpert" parameterType="java.util.Map" resultType="int" statementType="STATEMENT">
-		select count(*)FROM t_expert  where dwdm = ${dwdm}  and zjlxdm = ${zjlxdm} and zjztdm = ${zjztdm} and xbdm = ${xbdm} and ${create_date} &gt;= ${beginDate} and ${create_date} &lt; ${endDate}
+		select count(*)FROM t_expert
+			 <where>
+				<if test="dwdm!=null||dwdm!=''"> and dwdm = ${dwdm}</if>
+				<if test="zjlxdm!=null || zjlxdm!=''">and zjlxdm = ${zjlxdm}</if>
+				<if test="xbdm!=null||xbdm!=''">and xbdm = ${xbdm}</if>
+				<if test="beginDate!=null ||beginDate!=''">and create_date &gt;= '${beginDate}'</if>
+				<if test="endDate!=null||endDate!=''">and create_date &lt; '${endDate}'</if>
+			 </where>
 	</select>
 	<insert id="insertBankInfo">
 		INSERT INTO t_expert(
@@ -348,4 +355,36 @@
 		  khh = #{khh}
 		WHERE id = #{id}
 	</update>
+
+	<select id="getExpertByRand" resultType="Expert">
+		select yhzh AS "YHZH",qydm AS "QYDM.code" , (pscs+1) * rand() AS "pscs"
+		from t_expert a
+		<where>
+			a.del_flag = #{expert.DEL_FLAG_NORMAL}
+			<if test="expert.specialityManage != null and expert.specialityManage.zydm != null and expert.specialityManage.zydm != ''">
+				AND a.zydm = #{expert.specialityManage.zydm}
+			</if>
+			<if test="expert.ZJXLDM != null and expert.ZJXLDM != ''">
+				AND a.zjlxdm = #{expert.ZJXLDM}
+			</if>
+			<if test="expert.ZJZTDM != null and expert.ZJZTDM != ''">
+				AND a.zjztdm = #{expert.ZJZTDM}
+			</if>
+			<if test="list.size!=0">
+				AND a.yhzh not in
+				<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+		<choose>
+			<when test="expert.page !=null and expert.page.orderBy != null and expert.page.orderBy != ''">
+				ORDER BY ${expert.page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+		limit 1
+	</select>
 </mapper>

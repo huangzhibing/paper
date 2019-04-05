@@ -80,10 +80,10 @@
 				<label class="label-item single-overflow pull-left" title="二级学院：">二级学院：</label>
 				<form:input path="EJXY" htmlEscape="false" maxlength="20"  class=" form-control"/>
 			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<label class="label-item single-overflow pull-left" title="最高学位：">最高学位：</label>
-				<form:input path="ZJXW" htmlEscape="false" maxlength="10"  class=" form-control"/>
-			</div>
+			 <%--<div class="col-xs-12 col-sm-6 col-md-4">--%>
+				<%--<label class="label-item single-overflow pull-left" title="最高学位：">最高学位：</label>--%>
+				<%--<form:input path="ZJXW" htmlEscape="false" maxlength="10"  class=" form-control"/>--%>
+			<%--</div>--%>
 			 <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="毕业院校代码：">毕业院校代码：</label>
 				<sys:gridselect url="${ctx}/University/university/data" id="BYYXDM" name="BYYXDM.GXDM" value="${row.BYYXDM.GXDM}" labelName="" labelValue=""

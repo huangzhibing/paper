@@ -29,9 +29,9 @@
                 title:"地图选点",
                 content: "${ctx}/university/university/pickPoint" ,
                 btn: ['确定', '关闭'],
-/*                btn2: function(index, layero){
-                    var iframeWin = layero.find('iframe')[0]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                    iframeWin.contentWindow.importExcel('${ctx}/task/crawTask/import', function (data) {
+                /*                btn2: function(index, layero){
+                                    var iframeWin = layero.find('iframe')[0]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                                    iframeWin.contentWindow.importExcel('${ctx}/task/crawTask/import', function (data) {
                         if(data.success){
                             jp.success(data.msg);
                             refresh();
@@ -42,11 +42,11 @@
                     });//调用保存事件
                     return false;
                 },*/
-				btn1: function(index, layero) {
+                btn1: function(index, layero) {
                     var iframeWin = layero.find('iframe')[0];
-				  $("#gxjd").val(iframeWin.contentWindow.getJD());
-				  $("#gxwd").val(iframeWin.contentWindow.getWD());
-				  jp.close(index);
+                    $("#gxjd").val(iframeWin.contentWindow.getJD());
+                    $("#gxwd").val(iframeWin.contentWindow.getWD());
+                    jp.close(index);
                 },
 
                 btn2: function(index){
@@ -78,7 +78,6 @@
 						<c:if test="${mode == 'edit'|| mode == 'view'}">
 							<form:input path="gxdm" htmlEscape="false" readonly="true" class="form-control required" maxlength="5" minlength="5"/>
 						</c:if>
-
 					</div>
 				</div>
 				<div class="form-group">
@@ -88,39 +87,48 @@
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-2 control-label">高校经度：</label>
+					<label class="col-sm-2 control-label"><font color="red">*</font>高校纬度：</label>
+					<div class="col-sm-10">
+						<form:input path="gxwd" htmlEscape="false"    class="form-control required"/>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label"><font color="red">*</font>高校经度：</label>
 					<div class="col-sm-10">
 						<form:input path="gxjd" htmlEscape="false"    class="form-control required"/>
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-2 control-label">高校纬度：</label>
+					<label class="col-sm-2 control-label">是否是985：</label>
 					<div class="col-sm-10">
-						<form:input path="gxwd" htmlEscape="false"    class="form-control required"/>
+						<form:input path="whetheris985" htmlEscape="false"    class="form-control "/>
 					</div>
 				</div>
-				<div class="col-lg-3"></div>
-				<div class="col-lg-6">
-					<div class="form-group text-center" >
-						<div>
-							<button class="btn btn-primary btn-block btn-lg btn-parsley" onclick="pickPoint();return false" >地图选点</button>
-						</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">是否是211：</label>
+					<div class="col-sm-10">
+						<form:input path="whetheris211" htmlEscape="false"    class="form-control "/>
 					</div>
 				</div>
-			<c:if test="${mode == 'add' || mode=='edit'}">
 			<div class="col-lg-3"></div>
-			<div class="col-lg-9">
-				<div class="form-group text-center" style="margin-left:500px">
+			<div class="col-lg-6">
+				<div class="form-group text-center" >
 					<div>
-						<button class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交...">提 交</button>
+						<button class="btn btn-primary btn-block btn-lg btn-parsley" onclick="pickPoint();return false" >地图选点</button>
 					</div>
 				</div>
 			</div>
+		<c:if test="${mode == 'add' || mode=='edit'}">
+				<div class="col-lg-3"></div>
+		        <div class="col-lg-9">
+		             <div class="form-group text-center" style="margin-left:305px">
+		                 <div>
+		                     <button class="btn btn-primary btn-block btn-lg btn-parsley" data-loading-text="正在提交...">提 交</button>
+		                 </div>
+		             </div>
+		        </div>
 		</c:if>
 		</form:form>
-		</div>
-	</div>
-
 		</div>				
 	</div>
 	</div>

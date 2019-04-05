@@ -112,6 +112,16 @@ $(document).ready(function() {
 		        sortName: 'msxm'
 		       
 		    }
+                   ,{
+                       field: 'mslx',
+                       title: '秘书类型',
+                       sortable: true,
+                       sortName: 'T_MSLX',
+                       formatter:function(value, row , index){
+                           return jp.getDictLabel(${fns:toJson(fns:getDictList('T_MSLX'))}, value, "-");
+                       }
+
+                   }
 			,{
 		        field: 'yddh',
 		        title: '移动电话',
@@ -128,11 +138,18 @@ $(document).ready(function() {
 		    }
 			,{
 		        field: 'university.gxmc',
-		        title: '高校代码',
+		        title: '高校名称',
 		        sortable: true,
 		        sortName: 'university.gxdm'
 		       
 		    }
+                   ,{
+                       field: 'departmentManage.xymc',
+                       title: '学院名称',
+                       sortable: true,
+                       sortName: 'departmentManage.xydm'
+
+                   }
 			,{
 		        field: 'remarks',
 		        title: '备注信息',

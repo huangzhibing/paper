@@ -41,7 +41,7 @@
 	</sql>
 	
 	<sql id="orderJoins">
-		INNER JOIN t_paper lw ON lw.lwbh = a.lw and lw.lwztdm = 'g'
+		INNER JOIN t_paper lw ON lw.lwbh = a.lw and lw.lwztdm = 'e'
 		LEFT JOIN t_expert pszj ON pszj.yhzh = a.pszj
 		LEFT JOIN t_student_manage student ON student.xsxh = lw.xsxh
 		LEFT JOIN t_speciality_c speciality ON speciality.zydm = student.zydm
@@ -319,7 +319,10 @@
 		select * FROM t_order  where ${propertyName} = '${value}'
 	</select>
 	<update id="review" parameterType="com.hqu.modules.paperreview.entity.PaperReview">
-		update t_order set psdj = #{psdj}, psyj = #{psyj} where id = #{id}
+		update t_order set psdj = #{psdj}, psyj = #{psyj},  lwxtfs = #{lwxtfs},
+	  lwxzfs=#{lwxzfs},lyljfs=#{lyljfs},
+	  lwsp1fs=#{lwsp1fs},lwsp2fs=#{lwsp2fs},lwsp3fs=#{lwsp3fs},wxzsfs=#{wxzsfs},zyspfs=#{zyspfs},yjgzfs=#{yjgzfs},yjcgfs=#{yjcgfs} ,zf=#{zf}
+		 where id = #{id}
 	</update>
 	<update id="addReviewTimes" parameterType="String">
 		update t_expert set pscs = pscs+1 where yhzh = #{yhzh}

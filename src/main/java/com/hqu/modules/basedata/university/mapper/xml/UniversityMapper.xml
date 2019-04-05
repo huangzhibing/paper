@@ -135,7 +135,13 @@
 			whetheris211 = #{whetheris211}
 		WHERE id = #{id}
 	</update>
-	
+
+	<select id="getByGXMC" resultType="University">
+		select
+			<include refid="universityColumns"/>
+		from t_university_c a
+		where a.gxmc = #{gxmc}
+	</select>
 	
 	<!--物理删除-->
 	<update id="delete">

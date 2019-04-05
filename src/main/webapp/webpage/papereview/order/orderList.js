@@ -248,7 +248,16 @@ $(document).ready(function() {
 		jp.go("${ctx}/order/order/form/add");
 	}
 
+	function reEdit(id) {
+        if($('#orderTable').bootstrapTable('getData')[0].lwztdm!='d') return;
+        if(id == undefined){
+            id = getIdSelections();
+        }
+        jp.go("${ctx}/order/order/form/edit?id=" + id);
+    }
+
   function edit(id){
+      if($('#orderTable').bootstrapTable('getData')[0].lwztdm=='d') return;
 	  if(id == undefined){
 		  id = getIdSelections();
 	  }
@@ -262,10 +271,11 @@ $(document).ready(function() {
       jp.go("${ctx}/order/order/form/view?id=" + id);
   }
   function distribute() {
+  		if($('#orderTable').bootstrapTable('getData')[0].lwztdm=='c'||$('#orderTable').bootstrapTable('getData')[0].lwztdm=='d') return;
   		layer.open({
             type: 2,
             title: false,
-			area:['50%','50%'],
+			area:['60%','60%'],
 			content:"${ctx}/order/order/confirm",
 			btn:["确定","关闭"],
 			yes: function (index,layero) {

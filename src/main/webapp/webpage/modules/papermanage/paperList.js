@@ -332,7 +332,7 @@ $(document).ready(function() {
           area: ['800px', '300px'],
           title:"上传文件",
           auto:true,
-          content: "${ctx}/papermanage/paper/fileUploadModify?"+"uploadPath=/papermanage/paper"+"&type=file"+"&ids="+ids+"&fileSizeLimit=10",     
+          content: "${ctx}/papermanage/paper/fileUploadModify?"+"uploadPath=/papermanage/paper"+"&type=file"+"&ids="+ids+"&fileSizeLimit=100",     
           cancel: function(index, layero){
               var iframeWin = layero.find('iframe')[0]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
               

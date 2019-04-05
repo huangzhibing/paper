@@ -54,11 +54,11 @@
 					<div class="form-content">
 
 						<div class="form-group">
-							<input type="text" id="username" name="username" class="form-control input-underline input-lg required"  value="admin" placeholder="用户名">
+							<input type="text" id="username" name="username" class="form-control input-underline input-lg required"  placeholder="用户名">
 						</div>
 
 						<div class="form-group">
-							<input type="password" id="password" name="password" value="admin" class="form-control input-underline input-lg required" placeholder="密码">
+							<input type="password" id="password" name="password" class="form-control input-underline input-lg required" placeholder="密码">
 						</div>
 
 						<c:if test="${isValidateCodeLogin}">

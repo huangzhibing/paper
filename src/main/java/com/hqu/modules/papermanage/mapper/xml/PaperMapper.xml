@@ -39,7 +39,7 @@
 			<include refid="paperColumns"/>
 		FROM t_paper a
 		<include refid="paperJoins"/>
-		WHERE a.id = #{id}
+		WHERE (a.id = #{id} OR a.lwbh = #{id})
 	</select>
 	
 	<select id="findList" resultType="Paper" >
@@ -207,5 +207,8 @@
 	<select id="findUniqueByProperty" resultType="Paper" statementType="STATEMENT">
 		select * FROM t_paper  where ${propertyName} = '${value}'
 	</select>
-	
+
+	<update id="withdrawPaper" parameterType="java.util.Map">
+		update t_paper set lwztdm = 'g' where id = #{id}
+	</update>
 </mapper>

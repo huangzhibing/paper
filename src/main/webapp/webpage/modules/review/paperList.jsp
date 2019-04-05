@@ -131,10 +131,10 @@
 				</button>
 			 </shiro:hasPermission>
 				<%--<shiro:hasPermission name="review:paper:view">
-           <button id="view" class="btn btn-default" disabled onclick="view()">
-               <i class="fa fa-search-plus"></i> 查看
-           </button>
-       </shiro:hasPermission>--%>
+					<button id="view" class="btn btn-default" disabled onclick="view()">
+						<i class="fa fa-search-plus"></i> 撤回
+					</button>
+				</shiro:hasPermission>--%>
 		    </div>
 		
 	<!-- 表格 -->

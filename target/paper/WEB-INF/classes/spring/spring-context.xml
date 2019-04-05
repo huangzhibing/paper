@@ -14,7 +14,7 @@
 	
     <!-- 加载配置属性文件 -->
 	<context:property-placeholder ignore-unresolvable="true" location="classpath:/properties/jeeplus.properties" />
-	
+
 	<!-- 加载应用属性实例，可通过  @Value("#{APP_PROP['jdbc.driver']}") String jdbcDriver 方式引用 -->
     <util:properties id="APP_PROP" location="classpath:/properties/jeeplus.properties" local-override="true"/>
 	
@@ -102,4 +102,5 @@
     	<property name="dataSource" ref="dataSource" />
         <property name="configLocation" value="classpath:/properties/quartz.properties" />  
     </bean>
+
 </beans>

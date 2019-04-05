@@ -196,13 +196,13 @@ $(document).ready(function() {
 		        sortName: 'ejxy'
 		       
 		    }
-			,{
-		        field: 'zjxw',
-		        title: '最高学位',
-		        sortable: true,
-		        sortName: 'zjxw'
-		       
-		    }
+            // ,{
+		    //     field: 'zjxw',
+		    //     title: '最高学位',
+		    //     sortable: true,
+		    //     sortName: 'zjxw'
+		    //
+		    // }
 			,{
 		        field: 'byyxdm.gxmc',
 		        title: '毕业院校名称',

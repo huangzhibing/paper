@@ -46,7 +46,7 @@
 		<include refid="paperJoins"/>
 		WHERE a.id = #{id}
 	</select>
-	
+
 	<select id="findList" resultType="Paper" >
 		SELECT
 		<include refid="paperColumns"/>

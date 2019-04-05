@@ -82,7 +82,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>评审专家：</label>
 					<div class="col-sm-10">
-						<sys:gridselect-item id="zj" name="pszj.YHZH" value="${order.pszj.YHZH}" labelName="pszj.zjxm" labelValue="${order.pszj.ZJXM}" fieldLabels="专家姓名|所属高校|专业|评审次数" fieldKeys="zjxm|dwdm.dwmc|specialityManage.zymc|pscs" searchLabels="专家姓名|所属高校|专业|评审次数" searchKeys="zjxm|dwdm.dwmc|specialityManage.zymc|pscs" title="选择论文" url="${ctx}/expertmanagement/expert/data?ZJZTDM=0&specialityManage.zydm=${order.lw.XSXH.specialityManage.zydm}&pszt=0" cssClass="form-control required"
+						<sys:gridselect-item id="zj" name="pszj.YHZH" value="${order.pszj.YHZH}" labelName="pszj.zjxm" labelValue="${order.pszj.ZJXM}" fieldLabels="专家姓名|所属高校|专业|评审次数" fieldKeys="zjxm|dwdm.dwmc|specialityManage.zymc|pscs" searchLabels="专家姓名|所属高校|专业|评审次数" searchKeys="ZJXM|DWDM.dwdm|specialityManage.zymc|pscs" title="选择论文" url="${ctx}/expertmanagement/expert/data?ZJZTDM=0&specialityManage.zydm=${order.lw.XSXH.specialityManage.zydm}&pszt=0" cssClass="form-control required"
 											 extraField="zjId:yhzh;zjNames:zjxm;zjyx:dzyx;zjdh:lxdh;qydm:qydm.code;eid:id">
 						</sys:gridselect-item>
 					</div>

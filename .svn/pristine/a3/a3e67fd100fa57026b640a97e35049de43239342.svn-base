@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.papermanage.mapper.PaperMapper">
+    
+	<sql id="paperColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.lwbh AS "LWBH",
+		a.lwmc AS "LWMC",
+		a.xsxh AS "XSXH.xsxh",
+		a.lwwj AS "LWWJ",
+		a.lwlxdm AS "LWLXDM",
+		a.lwztdm AS "LWZTDM",
+		a.lwzy AS "lwzy",
+		XSXH.xsxm AS "XSXH.xsxm",
+		XSXH.zydm AS "XSXH.specialityManage.zydm",
+		XSXH.gxdm AS "XSXH.university.gxdm",
+		created.name AS "createBy.name",
+		updated.name AS "updateBy.name",
+		university.gxmc AS "university.gxmc"
+	</sql>
+	
+	<sql id="paperJoins">
+		
+		LEFT JOIN t_student_manage XSXH ON XSXH.xsxh = a.xsxh
+		LEFT JOIN sys_user created ON created.no = a.create_by
+		LEFT JOIN sys_user updated ON updated.no = a.update_by
+		LEFT JOIN t_university_c university ON XSXH.gxdm = university.gxdm
+	</sql>
+	
+    
+	<select id="get" resultType="Paper" >
+		SELECT 
+			<include refid="paperColumns"/>
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Paper" >
+		SELECT 
+			<include refid="paperColumns"/>
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="university != null and university.gxmc != null and university.gxmc != ''">
+				AND university.gxmc LIKE
+				<if test="dbName == 'oracle'">'%'||#{university.gxmc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{university.gxmc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{university.gxmc},'%')</if>
+			</if>
+			<if test="createBy != null and createBy.no != null and createBy.no != ''">
+				AND a.create_by LIKE 
+					<if test="dbName == 'oracle'">'%'||#{createBy.no}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{createBy.no}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{createBy.no},'%')</if>
+			</if>
+			<if test="beginCreateDate != null and endCreateDate != null ">
+				AND a.create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+			</if>
+			<if test="updateBy != null and updateBy.no != null and updateBy.no != ''">
+				AND a.update_by LIKE 
+					<if test="dbName == 'oracle'">'%'||#{updateBy.no}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{updateBy.no}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{updateBy.no},'%')</if>
+			</if>
+			<if test="no != null and no != ''">
+				AND updated.company_id = (select company_id from sys_user where no = #{no})
+			</if>
+			<if test="beginUpdateDate != null and endUpdateDate != null ">
+				AND a.create_date BETWEEN #{beginUpdateDate} AND #{endUpdateDate}
+			</if>
+			<if test="LWMC != null and LWMC != ''">
+				AND a.lwmc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{LWMC}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{LWMC}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{LWMC},'%')</if>
+			</if>
+			<if test="LWBH != null and LWBH != ''">
+				AND a.lwbh LIKE
+				<if test="dbName == 'oracle'">'%'||#{LWBH}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{LWBH}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{LWBH},'%')</if>
+			</if>
+			<if test="XSXH != null and XSXH != '' and XSXH.xsxh != null and XSXH.xsxh != '' ">
+				AND a.xsxh LIKE 
+					<if test="dbName == 'oracle'">'%'||#{XSXH.xsxh}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{XSXH.xsxh}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{XSXH.xsxh},'%')</if>
+			</if>
+             <if test="LWZTDM != null and  LWZTDM == 'ab'">
+                AND (a.lwztdm = 'b' OR a.lwztdm = 'c')
+            </if> 
+			<if test="LWZTDM != null and LWZTDM != '' and LWZTDM != 'ab'">
+				AND a.lwztdm = #{LWZTDM}
+			</if>
+			<if test="XSXH != null and XSXH.university != null and XSXH.university.gxdm != null and XSXH.university.gxdm != ''">
+				AND XSXH.gxdm = #{XSXH.university.gxdm}
+			</if>
+			<if test="XSXH != null and XSXH.specialityManage != null and XSXH.specialityManage.zydm != null and XSXH.specialityManage.zydm != ''">
+				AND XSXH.zydm = #{XSXH.specialityManage.zydm}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	
+	<select id="findAllList" resultType="Paper" >
+		SELECT 
+			<include refid="paperColumns"/>
+		FROM t_paper a
+		<include refid="paperJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO t_paper(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			lwbh,
+			lwmc,
+			xsxh,
+			lwwj,
+			lwlxdm,
+			lwztdm,
+			lwzy
+		) VALUES (
+			#{id},
+			#{createBy.no},
+			#{createDate},
+			#{updateBy.no},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{LWBH},
+			#{LWMC},
+			#{XSXH.xsxh},
+			#{LWWJ},
+			#{LWLXDM},
+			#{LWZTDM},
+			#{lwzy}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE t_paper SET 	
+			update_by = #{updateBy.no},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			lwbh = #{LWBH},
+			lwmc = #{LWMC},
+			xsxh = #{XSXH.xsxh},
+			lwwj = #{LWWJ},
+			lwlxdm = #{LWLXDM},
+			lwztdm = #{LWZTDM},
+			jfddh = #{jfddh},
+			lwzy = #{lwzy}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM t_paper
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE t_paper SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Paper" statementType="STATEMENT">
+		select * FROM t_paper  where ${propertyName} = '${value}'
+	</select>
+
+	<update id="withdrawPaper" parameterType="java.util.Map">
+		update t_paper set lwztdm = 'g' where id = #{id}
+	</update>
+</mapper>

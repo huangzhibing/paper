@@ -123,7 +123,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>秘书代码：</label>
 					<div class="col-sm-10" style="display: inline-flex" >
-						<input type="text" name="gxdm_input" id = "gxdm" placeholder="请选择所在高校" readonly="readonly" style="    margin-right: 20px;width: 80px;text-align: center;"/>
+						<input type="text" name="gxdm_input" id = "gxdm" placeholder="请选择所在高校" readonly="readonly" style="    margin-right: 20px;width: 100px;text-align: center;"/>
 						<form:input path="msdm" name="msdm_input" id="msdm" htmlEscape="false" placeholder="请输入秘书工号"  class="form-control required"/>
 					</div>
 				</div>
@@ -133,16 +133,26 @@
 						<form:input path="msxm" htmlEscape="false"    class="form-control required"/>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="col-sm-2 control-label">移动电话：</label>
+				<div class="form-group" style="display: none">
+					<label class="col-sm-2 control-label">秘书类型：</label>
 					<div class="col-sm-10">
-						<form:input path="yddh" name="yddm_input" htmlEscape="false"    class="form-control "/>
+						<form:select name="mslx" path="mslx" class="form-control">
+							<form:option value="" label=""/>
+							<form:options items="${fns:getDictList('T_MSLX')}" itemLabel="label" itemValue="value" htmlEscape="false"/>
+						</form:select>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-sm-2 control-label"><font color="red">*</font>移动电话：</label>
+					<div class="col-sm-10">
+						<form:input path="yddh" name="yddm_input" htmlEscape="false"    class="form-control required"/>
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-2 control-label">邮件：</label>
+					<label class="col-sm-2 control-label"><font color="red">*</font>邮件：</label>
 					<div class="col-sm-10">
-						<form:input path="yj" name="yj_input" htmlEscape="false"    class="form-control "/>
+						<form:input path="yj" name="yj_input" htmlEscape="false"    class="form-control required"/>
 					</div>
 				</div>
 				<div class="form-group">

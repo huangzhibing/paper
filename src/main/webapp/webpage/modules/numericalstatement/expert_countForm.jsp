@@ -16,7 +16,7 @@
             new Date(oneMonthAgo.setMonth((new Date().getMonth()-1)));
             var begintime= formatDate(oneMonthAgo);
             var endtime=formatDate(nowDate);
-            Graph(begintime,endtime,"","","");
+            Graph(begintime,endtime,"","","",0);
 
             $('#beginDate input').val(begintime);
             $('#endDate input').val(endtime);
@@ -31,26 +31,28 @@
             $('#search').click(function () {
                 var beginDate = $('#beginDate input').val();
                 var endDate = $('#endDate input').val();
-                var zjlxdm=$("#zjlx option").val();
-                var zjztdm=$("#zjzt option").val();
-                var xbdm=$("#xb option").val();
-                Graph(beginDate,endDate,zjlxdm,zjztdm,xbdm);
-
+                var zjlxdm=$("#zjlx").val();
+                var zjztdm=$("#zjzt").val();
+                var xbdm=$("#xb").val();
+                Graph(beginDate,endDate,zjlxdm,zjztdm,xbdm,1);
+                document.forms[0].target="rfFrame";
         });
         });
-        function Graph(beginDate,endDate,zjlxdm,zjztdm,xbdm) {
+        function Graph(beginDate,endDate,zjlxdm,zjztdm,xbdm,flag) {
             var barChart = echarts.init(document.getElementById('barGraph'));
             var pieChart = echarts.init(document.getElementById('pieGraph'));
             var lineChart = echarts.init(document.getElementById('lineGraph'));
-            jp.get("${ctx}/numericalstatement/expert_count/bar?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag=1",function (barOption) {
+            jp.get("${ctx}/numericalstatement/expert_count/bar?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (barOption) {
                 barChart.setOption(barOption);
             });
-            jp.get("${ctx}/numericalstatement/expert_count/pie?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag=1",function (pieOption) {
-                pieChart.setOption(pieOption);
-            });
-            jp.get("${ctx}/numericalstatement/expert_count/line?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag=1",function (lineOption) {
+            jp.get("${ctx}/numericalstatement/expert_count/line?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (lineOption) {
                 lineChart.setOption(lineOption);
             });
+            jp.get("${ctx}/numericalstatement/expert_count/pie?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (pieOption) {
+                pieChart.setOption(pieOption);
+            });
+
+
         }
         function formatDate(time){
             var date = new Date(time);
@@ -116,7 +118,7 @@
                             <label class="label-item single-overflow pull-left" title="专家类型：">专家类型：</label>
                             <select id="zjlx" name="zjlx"class="form-control required">
                                 <option value="0" selected>高校专家</option>
-                                <option value="1">企业专家</option>
+                                <option value="1">行业专家</option>
                             </select>
                         </div>
                         <div class="col-xs-12 col-sm-6 col-md-4">
@@ -163,7 +165,7 @@
                     <div id="lineGraph" style="width:1000px;height:400px;margin:50px auto;" ></div>
                 </div>
             </div>
-
+            <iframe id="rfFrame" name="rfFrame" src="about:blank" style="display:none;"></iframe>
 
         </div>
     </div>

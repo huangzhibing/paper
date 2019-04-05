@@ -1,0 +1,277 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.papereview.order.service;
+
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import com.hqu.modules.basedata.costc.entity.Costc;
+import com.hqu.modules.basedata.costc.mapper.CostcMapper;
+import com.hqu.modules.basedata.studentmanage.entity.StudentManage;
+import com.hqu.modules.basedata.studentmanage.mapper.StudentManageMapper;
+import com.hqu.modules.customermanage.expertmanagement.entity.Expert;
+import com.hqu.modules.customermanage.expertmanagement.mapper.ExpertMapper;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.mapper.PaperMapper;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.websocket.service.system.SystemInfoSocketHandler;
+import com.jeeplus.modules.iim.entity.Mail;
+import com.jeeplus.modules.iim.entity.MailBox;
+import com.jeeplus.modules.iim.entity.MailCompose;
+import com.jeeplus.modules.iim.service.MailBoxService;
+import com.jeeplus.modules.iim.service.MailComposeService;
+import com.jeeplus.modules.iim.service.MailService;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.service.CrudService;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.mapper.OrderMapper;
+
+/**
+ * 订单Service
+ * @author hzm
+ * @version 2018-09-01
+ */
+@Service
+@Transactional(readOnly = true)
+public class OrderService extends CrudService<OrderMapper, Order> {
+
+	@Autowired
+	OrderMapper orderMapper;
+	@Autowired
+	ExpertMapper expertMapper;
+	@Autowired
+	StudentManageMapper studentManageMapper;
+	@Autowired
+	PaperMapper paperMapper;
+	@Autowired
+	CostcMapper costcMapper;
+	@Autowired
+	private MailService mailService;
+	@Autowired
+	private MailComposeService mailComposeService;
+	@Autowired
+	private MailBoxService mailBoxService;
+	@Bean
+	public SystemInfoSocketHandler systemInfoSocketHandler() {
+		return new SystemInfoSocketHandler();
+	}
+
+	public Order get(String id) {
+		return super.get(id);
+	}
+	
+	public List<Order> findList(Order order) {
+		return super.findList(order);
+	}
+	
+	public Page<Order> findPage(Page<Order> page, Order order) {
+		return super.findPage(page, order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void save(Order order) {
+		super.save(order);
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Order order) {
+		super.delete(order);
+	}
+
+	/**
+	 * 批量指派
+	 * @param i
+	 * @param random
+	 * @param sdf
+	 * @param YHZHs
+	 * @throws Exception
+	 */
+	@Transactional (readOnly = false,rollbackFor = Exception.class)
+	public void distribution(String i, Random random, SimpleDateFormat sdf, List<String> YHZHs,Expert expert)throws Exception{
+
+		//设置订单
+		Order order = new Order();
+		//完善订单信息
+		String num = Integer.toString(random.nextInt(10000));
+		order.setDdh(sdf.format(new Date()) + num);
+		order.setXdrq(new Date());
+		//自动生成提起码
+		if (order.getDdh() != null) {
+			order.setTqm(order.getDdh().substring(order.getDdh().length() - 6, order.getDdh().length()));
+		}
+		//订单论文信息
+		Paper paper = paperMapper.get(i);
+		if(paper.getXSXH()==null||paper.getXSXH().getSpecialityManage()==null||paper.getXSXH().getSpecialityManage().getZydm()==null){//专业为空
+			throw new Exception("学生专业代码为空");
+		}
+		if(paper.getXSXH()==null||paper.getXSXH().getUniversity()==null||paper.getXSXH().getUniversity().getGxdm()==null){
+			throw new Exception("学生高校代码为空!");
+		}
+		order.setLw(paper);
+		if(studentManageMapper.findList(paper.getXSXH()).size()!=1) throw new Exception();
+		List<StudentManage> students=studentManageMapper.findList(paper.getXSXH());
+		order.setKhxm(students.get(0).getXsxm());
+		order.setYddh(students.get(0).getYddh());
+
+
+		//筛选专家
+		expert.setZJZTDM("0");
+		expert.getSpecialityManage().setZydm(paper.getXSXH().getSpecialityManage().getZydm());
+		if(StringUtils.isBlank(expert.getPage().getOrderBy())) {
+			expert.getPage().setOrderBy("pscs");
+		}
+		Expert dbexpert = expertMapper.getExpertByRand(expert,YHZHs);;
+		YHZHs.add(dbexpert.getYHZH());
+		order.setQydm(dbexpert.getQYDM());
+		order.setPszj(dbexpert);
+
+
+		 //设置费用
+		Costc costc = new Costc();
+		costc.setUniversity(order.getLw().getXSXH().getUniversity());
+		costc.setSpecialityManage(order.getLw().getXSXH().getSpecialityManage());
+		if(costcMapper.findList(costc).size()!=1) throw new Exception("费用表中无相应的费用数据!");
+		order.setZj(costcMapper.findList(costc).get(0).getPsfy().doubleValue());
+
+
+		//生成订单
+		order.setDdztdm("a");
+		order.setDdlxdm("0");
+		//保存订单
+		if("c".equals(paper.getLWZTDM())){
+			//查找原先的订单
+			Order o=new Order();
+			o.setLw(paper);
+			o=orderMapper.findList(o).get(0);
+			//生成订单
+			o.setPszj(dbexpert);
+			o.setQydm(dbexpert.getQYDM());
+			o.preUpdate();
+			orderMapper.update(o);
+		}else{
+			order.preInsert();
+			orderMapper.insert(order);
+		}
+		//修改论文状态
+		if(!"a".equals(paper.getLWZTDM())) {
+			paper.setLWZTDM("c");
+			paper.preUpdate();
+			paperMapper.update(paper);
+		}
+	}
+
+	/**
+	 * 单独指派
+	 * @param paper
+	 * @param expert
+	 * @param order
+	 * @throws Exception
+	 */
+	@Transactional(readOnly = false,rollbackFor = Exception.class)
+	public void trySave(Paper paper,Expert expert,Order order)throws Exception{
+		if ("c".equals(paper.getLWZTDM())) {
+			Order o = new Order();
+			o.setLw(paper);
+			o = orderMapper.findList(o).get(0);
+			o.setPszj(expert);
+			o.preUpdate();
+			orderMapper.update(o);
+		} else {
+			order.setLw(paper);
+			List<StudentManage> students = studentManageMapper.findList(paper.getXSXH());
+			if (students.size()!=1) throw new Exception();
+			order.setKhxm(students.get(0).getXsxm());
+			order.setYddh(students.get(0).getYddh());
+			//添加费用
+			Costc costc = new Costc();
+			costc.setUniversity(order.getLw().getXSXH().getUniversity());
+			costc.setSpecialityManage(order.getLw().getXSXH().getSpecialityManage());
+			if(costcMapper.findList(costc).size()!=1) throw new Exception();
+			order.setZj(costcMapper.findList(costc).get(0).getPsfy().doubleValue());
+			//新增或编辑表单保存
+			order.setDdztdm("a");
+			order.setDdlxdm("0");
+			order.preInsert();
+			orderMapper.insert(order);//保存
+			//修改论文状态
+			paper.setLWZTDM("c");
+			paper.preUpdate();
+			paperMapper.update(paper);
+		}
+		//message(expert);
+	}
+
+	/**
+	 * 加权随机
+	 */
+	private Expert random(List<Expert> experts,HashSet<String> hashSet){
+		int max=experts.get(0).getPscs();
+		int total=0;
+		for(Expert expert:experts){
+			expert.setPscs(max-expert.getPscs()+1);//权值最低为1
+			total+=expert.getPscs();
+		}
+		Random random=new Random();
+		int ram=random.nextInt(total);
+		int flag=0;
+		for (Expert expert:experts){
+			flag+=expert.getPscs();
+			if(flag>ram &&!hashSet.contains(expert.getId())){
+				hashSet.add(expert.getId());
+				return expert;
+			}
+		}
+		return null;
+	}
+
+	public int getOrderByDate(Map<String,Object> map){
+		int num = orderMapper.getOrderByDate(map);
+		return num;
+	}
+
+	/**
+	 * 发送邮件
+	 * @param expert
+	 */
+	private void message(Expert expert) {
+		MailCompose mailCompose = new MailCompose();
+		mailCompose.setMail(new Mail());
+		mailCompose.getMail().setTitle("系统消息");
+		mailCompose.getMail().setOverview("系统已为您自动分配论文，请及时接收");
+		mailCompose.getMail().setContent("系统已为您自动分配论文，请及时接收");
+		mailCompose.setReceiverIds(UserUtils.getByLoginName(expert.getYHZH()).getId());
+		mailCompose.setStatus("1");
+		mailCompose.setReceiver(UserUtils.getByLoginName(expert.getYHZH()));
+		mailService.saveOnlyMain(mailCompose.getMail());
+		Date date = new Date(System.currentTimeMillis());
+		mailCompose.setSender(UserUtils.getUser());
+		mailCompose.setSendtime(date);
+		for (User receiver : mailCompose.getReceiverList()) {
+			mailCompose.setReceiver(receiver);
+			mailCompose.setId(null);//标记为新纪录，每次往发件箱插入一条记录
+			mailComposeService.save(mailCompose);//0 显示在草稿箱，1 显示在已发送需同时保存到收信人的收件箱。
+
+
+			if (mailCompose.getStatus().equals("1"))//已发送，同时保存到收信人的收件箱
+			{
+				MailBox mailBox = new MailBox();
+				mailBox.setReadstatus("0");
+				mailBox.setReceiver(receiver);
+				mailBox.setSender(UserUtils.getUser());
+				mailBox.setMail(mailCompose.getMail());
+				mailBox.setSendtime(date);
+				mailBoxService.save(mailBox);
+				//发送通知到客户端
+				systemInfoSocketHandler().sendMessageToUser(UserUtils.get(receiver.getId()).getLoginName(), "收到一封新邮件");
+			}
+		}
+	}
+}
