@@ -112,6 +112,26 @@ $(document).ready(function() {
 		        sortName: 'zjxm'
 		       
 		    }
+                   ,{
+                       field: 'pscs',
+                       title: '评审次数',
+                       sortable: true,
+                   }
+                   ,{
+                       field: 'sfzh',
+                       title: '身份证',
+                       sortable: true,
+                   }
+                   ,{
+                       field: 'khh',
+                       title: '开户行',
+                       sortable: true,
+                   }
+                   ,{
+                       field: 'yhkh',
+                       title: '银行卡号',
+                       sortable: true,
+                   }
 		    ,{
                	field: 'ye',
 				title: '余额',

@@ -85,34 +85,6 @@ $(document).ready(function() {
 		       
 		    }
 			,{
-		        field: 'createBy.name',
-		        title: '创建者',
-		        sortable: true,
-		        sortName: 'createBy.name'
-		       
-		    }
-			,{
-		        field: 'createDate',
-		        title: '创建时间',
-		        sortable: true,
-		        sortName: 'createDate'
-
-		    }
-			,{
-		        field: 'updateBy.name',
-		        title: '更新者',
-		        sortable: true,
-		        sortName: 'updateBy.name'
-		       
-		    }
-			,{
-		        field: 'updateDate',
-		        title: '更新时间',
-		        sortable: true,
-		        sortName: 'updateDate'
-		       
-		    }
-			,{
 		        field: 'lwbh',
 		        title: '论文编号',
 		        sortable: true,
@@ -132,6 +104,13 @@ $(document).ready(function() {
 		        sortName: 'LWMC'
 		       
 		    }
+                   ,{
+                       field: 'no',
+                       title: '评审专家',
+                       sortable: true,
+                       sortName: 'No'
+
+                   }
 			,{
 		        field: 'xsxh.xsxh',
 		        title: '学生学号',
@@ -213,6 +192,10 @@ $(document).ready(function() {
 			jp.downloadFile('${ctx}/papermanage/paper/export');
 	  });
 
+    $("#exportPdf").click(function(){//生成评阅书
+        window.open('${ctx}/reviewsearch/exportPdf?ids=' + getSelectionsNum());
+    });
+
 		    
 	  $("#search").click("click", function() {// 绑定查询按扭
 		  $('#paperTable').bootstrapTable('refresh');
@@ -242,6 +225,12 @@ $(document).ready(function() {
             return row.id
         });
     }
+
+function getSelectionsNum() {
+    return $.map($("#paperTable").bootstrapTable('getSelections'), function (row) {
+        return row.lwbh
+    });
+}
   
   function deleteAll(){
 

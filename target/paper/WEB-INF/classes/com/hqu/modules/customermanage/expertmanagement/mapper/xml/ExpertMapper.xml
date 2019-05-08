@@ -387,4 +387,14 @@
 		</choose>
 		limit 1
 	</select>
+
+	<select id="getExpertByGX" resultType="com.hqu.modules.numericalstatement.web.EC">
+		select count(*) as num,dw.dwmc as gxmc from t_expert left join t_institution_c dw on dw.dwdm= t_expert.dwdm
+		<where>
+			<if test="zjzt != null and zjzt != ''">
+				AND  zjztdm = #{zjzt}
+			</if>
+		</where>
+		 GROUP BY t_expert.dwdm
+	</select>
 </mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.reviewsearch.mapper.ReviewSearchMapper">
+    <select id="bookInfo" resultType="ReviewSearch">
+       SELECT
+        zjxm AS readerName,
+        CONCAT(yb,lxdz) AS code,
+        yddh AS phone,
+        dzyx AS Email,
+        lwmc AS paperName,
+        lwbh AS number,
+        t_professionaltechnical_c.zyjsjbmc AS professionalTitle,
+        t_institution_c.dwmc AS company,
+        t_speciality_c.zymc AS major
+        FROM t_paper,t_expert
+        INNER JOIN t_professionaltechnical_c ON t_expert.zyjszwdm = t_professionaltechnical_c.zyjsjbdm
+        INNER JOIN t_institution_c ON t_expert.dwdm = t_institution_c.dwdm
+        INNER JOIN t_speciality_c ON t_expert.zydm = t_speciality_c.zydm
+        WHERE
+            yhzh=(SELECT
+                        pszj
+                        FROM t_order
+                        WHERE
+                        lw = #{num}
+                        AND ddztdm = "a" LIMIT 1)
+            AND lwbh = #{num}
+    </select>
+</mapper>

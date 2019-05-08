@@ -1,0 +1,96 @@
+package com.hqu.modules.reviewsearch.service;
+
+import com.hqu.modules.customermanage.ordermanage.entity.OrderManage;
+import com.hqu.modules.customermanage.ordermanage.service.OrderManageService;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.service.OrderService;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.service.PaperService;
+import com.hqu.modules.paperreview.entity.PaperReview;
+import com.hqu.modules.paperreview.service.PaperReviewService;
+import com.hqu.modules.reviewsearch.entity.ReviewSearch;
+import com.hqu.modules.reviewsearch.mapper.ReviewSearchMapper;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.core.service.CrudService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+@Service
+@Transactional
+public class ReviewSearchService extends CrudService<ReviewSearchMapper, ReviewSearch> {
+
+    @Autowired
+    public PaperService paperService;
+
+    @Autowired
+    public PaperReviewService orderService;
+
+    public ReviewSearch bookInfo(String num){
+        ReviewSearch reviewSearch = new ReviewSearch();
+        reviewSearch = mapper.bookInfo(num);
+        Paper paper = paperService.get(num);
+        if(paper.getXSXH() != null){
+            if(StringUtils.isNotBlank(paper.getXSXH().getXsxm())) {
+                reviewSearch.setStuName(paper.getXSXH().getXsxm());
+                if(paper.getXSXH().getSpecialityManage() != null){
+                    if(StringUtils.isNotBlank(paper.getXSXH().getSpecialityManage().getZymc())){
+                        reviewSearch.setStuMajor(paper.getXSXH().getSpecialityManage().getZymc());
+                    }
+                }else {
+                    reviewSearch.setStuMajor(null);
+                }
+            }
+        }else {
+            reviewSearch.setStuName(null);
+        }
+        PaperReview paperReview = new PaperReview();
+        paperReview.setLw(paper);
+        paperReview.setDdztdm("a");
+        List<PaperReview> list = orderService.findList(paperReview);
+        if(list.get(0).getLwxtfs() != null){
+            reviewSearch.setScore1(list.get(0).getLwxtfs());
+        }
+        if(list.get(0).getWxzsfs() != null){
+            reviewSearch.setScore1(list.get(0).getWxzsfs());
+        }
+        if(list.get(0).getZyspfs() != null){
+            reviewSearch.setScore1(list.get(0).getZyspfs());
+        }
+        if(list.get(0).getYjgzfs() != null){
+            reviewSearch.setScore1(list.get(0).getYjgzfs());
+        }
+        if(list.get(0).getYjcgfs() != null){
+            reviewSearch.setScore1(list.get(0).getYjcgfs());
+        }
+        if(list.get(0).getLwxzfs() != null){
+            reviewSearch.setScore1(list.get(0).getLwxzfs());
+        }
+        if(list.get(0).getZf() != null){
+            reviewSearch.setScore1(list.get(0).getZf());
+            double score = list.get(0).getZf();
+            if(score>=90){
+                reviewSearch.setCheck1("On");
+            }else if(score>=80&&score<89){
+                reviewSearch.setCheck2("On");
+            }else if(score>=70&&score<79){
+                reviewSearch.setCheck3("On");
+            }else if(score<70){
+                reviewSearch.setCheck4("On");
+            }
+        }
+        Date updateTime = list.get(0).getUpdateDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(updateTime);
+
+        reviewSearch.setYear(calendar.get(Calendar.YEAR));
+        reviewSearch.setMonth(calendar.get(Calendar.MONTH)+1);
+        reviewSearch.setDay(calendar.get(Calendar.DAY_OF_MONTH));
+
+        return reviewSearch;
+    }
+}

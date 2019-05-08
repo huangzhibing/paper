@@ -29,6 +29,10 @@
 				<label class="label-item single-overflow pull-left" title="专家姓名：">专家姓名：</label>
 				<form:input path="ZJXM" htmlEscape="false" maxlength="16"  class=" form-control"/>
 			</div>
+				<div class="col-xs-12 col-sm-6 col-md-4">
+					<label class="label-item single-overflow pull-left" title="专家姓名：">评审次数：</label>
+					<form:input path="pscs" htmlEscape="false" maxlength="16"  class=" form-control"/>
+				</div>
 			 <div class="col-xs-12 col-sm-6 col-md-4">
 				<div class="form-group">
 					<label class="label-item single-overflow pull-left" title="专家类型代码：">&nbsp;专家类型代码：</label>

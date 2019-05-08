@@ -1,0 +1,324 @@
+/**
+ * Copyright &copy; 2015-2020 <a href="http://www.jeeplus.org/">JeePlus</a> All rights reserved.
+ */
+package com.hqu.modules.reviewsearch.web;
+
+import com.google.common.collect.Lists;
+import com.hqu.modules.basedata.studentmanage.entity.StudentManage;
+import com.hqu.modules.customermanage.ordermanage.entity.OrderManage;
+import com.hqu.modules.customermanage.ordermanage.service.OrderManageService;
+import com.hqu.modules.papereview.order.entity.Order;
+import com.hqu.modules.papereview.order.mapper.OrderMapper;
+import com.hqu.modules.papereview.order.service.OrderService;
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.entity.PaperImport;
+import com.hqu.modules.papermanage.service.PaperService;
+import com.jeeplus.common.json.AjaxJson;
+import com.jeeplus.common.utils.DateUtils;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.common.utils.excel.ExportExcel;
+import com.jeeplus.common.utils.excel.ImportExcel;
+import com.jeeplus.core.persistence.Page;
+import com.jeeplus.core.web.BaseController;
+import com.jeeplus.modules.sys.entity.User;
+import com.jeeplus.modules.sys.utils.UserUtils;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolationException;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 评审记录查询Controller
+ * @author Neil
+ * @version 2018-08-29
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/reviewsearch")
+public class ReviewSearchController extends BaseController {
+
+	@Autowired
+	private PaperService paperService;
+
+	@Autowired
+	private OrderService orderManageService;
+	
+	@ModelAttribute
+	public Paper get(@RequestParam(required=false) String id) {
+		Paper entity = null;
+		if (StringUtils.isNotBlank(id)){
+			entity = paperService.get(id);
+		}
+		if (entity == null){
+			entity = new Paper();
+		}
+		return entity;
+	}
+	
+	/**
+	 * 论文管理列表页面
+	 */
+	@RequiresPermissions("reviewsearch:allsearch:list")
+	@RequestMapping(value = {"allsearch", ""})
+	public String allsearch(Paper paper, Model model) {
+		model.addAttribute("paper", paper);
+		return "modules/reviewsearch/reviewSearchList";
+	}
+
+	/**
+	 * 论文管理列表页面
+	 */
+	@RequiresPermissions("reviewsearch:schoolsearch:list")
+	@RequestMapping(value = {"schoolsearch", ""})
+	public String schoolsearch(Paper paper, Model model) {
+		model.addAttribute("paper", paper);
+		return "modules/reviewsearch/schoolReviewList";
+	}
+
+	/**
+	 * 送审查询列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("reviewsearch:allsearch:list")
+	@RequestMapping(value = "reviewsearchdata")
+	public Map<String, Object> reviewsearchdata(Paper paper, HttpServletRequest request, HttpServletResponse response, Model model) {
+		paper.setNo(UserUtils.getUser().getNo());
+		Page<Paper> page = paperService.findPage(new Page<Paper>(request, response), paper);
+		for(int i=0;i<page.getList().size();i++) {
+			if(StringUtils.isNotBlank(page.getList().get(i).getLWWJ())) {
+				String name = page.getList().get(i).getLWWJ();
+				name = name.substring(name.lastIndexOf("/")+1, name.length());
+				page.getList().get(i).setName(name);
+			}
+            Order orderManage = new Order();
+            orderManage.setLw(page.getList().get(i));
+            orderManage.setDdztdm("a");
+            List<Order> orderManages = orderManageService.findList(orderManage);
+            for(int j=0;j<orderManages.size();j++){     //如果出现一篇论文对应两个订单就会出问题，我这边用的方法是通过筛选订单状态代码为“a”，做了进一步控制
+                String No = orderManages.get(j).getPszj().getZJXM();
+                page.getList().get(i).setNo(No.trim());
+            }
+		}
+		for(int i=0;i<page.getList().size();){
+			if(page.getList().get(i).getLWZTDM().equals("a")){
+				page.getList().remove(i);
+			}else {
+				i++;
+			}
+		}
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 学校查询列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("reviewsearch:schoolsearch:list")
+	@RequestMapping(value = "schoolreviewsearchdata")
+	public Map<String, Object> schoolreviewsearchdata(Paper paper, HttpServletRequest request, HttpServletResponse response, Model model) {
+		paper.setNo(UserUtils.getUser().getNo());
+		Page<Paper> page = paperService.findPage(new Page<Paper>(request, response), paper);
+		for(int i=0;i<page.getList().size();i++) {
+			if(StringUtils.isNotBlank(page.getList().get(i).getLWWJ())) {
+				String name = page.getList().get(i).getLWWJ();
+				name = name.substring(name.lastIndexOf("/")+1, name.length());
+				page.getList().get(i).setName(name);
+			}
+		}
+		List<Paper> list=page.getList();
+		User user=UserUtils.getUser();
+		if(user.getLoginName().equals("admin"))
+			return getBootstrapData(page);
+		String gxdm=user.getLoginName().substring(0,5);
+		for(int i=0;i<list.size();) {
+			if(list.get(i).getLWBH().substring(0,5).equals(gxdm)){
+				i++;
+			}else {
+				list.remove(i);
+			}
+		}
+		page.setList(list);
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 查看，增加，编辑论文管理表单页面
+	 */
+	@RequiresPermissions(value={"papermanage:paper:view","papermanage:paper:add","papermanage:paper:edit"},logical=Logical.OR)
+	@RequestMapping(value = "form/{mode}")
+	public String form(@PathVariable String mode, Paper paper, Model model) {
+		model.addAttribute("paper", paper);
+		model.addAttribute("mode", mode);
+		if(StringUtils.isBlank(paper.getId())) {
+			String paperId = System.currentTimeMillis()+"00000";
+			paper.setLWBH(paperId);
+		}
+		return "modules/papermanage/paperForm";
+	}
+
+	/**
+	 * 保存论文管理
+	 */
+	@ResponseBody
+	@RequiresPermissions(value={"papermanage:paper:add","papermanage:paper:edit"},logical=Logical.OR)
+	@RequestMapping(value = "save")
+	public AjaxJson save(Paper paper, Model model) throws Exception{
+		AjaxJson j = new AjaxJson();
+		/**
+		 * 后台hibernate-validation插件校验
+		 */
+		String errMsg = beanValidator(paper);
+		if (StringUtils.isNotBlank(errMsg)){
+			j.setSuccess(false);
+			j.setMsg(errMsg);
+			return j;
+		}
+		//新增或编辑表单保存
+		System.out.println(paper+"-=-=-=");
+		paperService.save(paper);//保存
+		j.setSuccess(true);
+		j.setMsg("保存论文管理成功");
+		return j;
+	}
+	
+	/**
+	 * 删除论文管理
+	 */
+	@ResponseBody
+	@RequiresPermissions("papermanage:paper:del")
+	@RequestMapping(value = "delete")
+	public AjaxJson delete(Paper paper) {
+		AjaxJson j = new AjaxJson();
+		paperService.delete(paper);
+		j.setMsg("删除论文管理成功");
+		return j;
+	}
+	
+	/**
+	 * 批量删除论文管理
+	 */
+	@ResponseBody
+	@RequiresPermissions("papermanage:paper:del")
+	@RequestMapping(value = "deleteAll")
+	public AjaxJson deleteAll(String ids) {
+		AjaxJson j = new AjaxJson();
+		String idArray[] =ids.split(",");
+		for(String id : idArray){
+			paperService.delete(paperService.get(id));
+		}
+		j.setMsg("删除论文管理成功");
+		return j;
+	}
+	
+	/**
+	 * 导出excel文件
+	 */
+	@ResponseBody
+	@RequiresPermissions("papermanage:paper:export")
+    @RequestMapping(value = "export")
+    public AjaxJson exportFile(Paper paper, HttpServletRequest request, HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "论文管理"+DateUtils.getDate("yyyyMMddHHmmss")+".xlsx";
+            Page<Paper> page = paperService.findPage(new Page<Paper>(request, response, -1), paper);
+    		new ExportExcel("论文管理", Paper.class).setDataList(page.getList()).write(response, fileName).dispose();
+    		j.setSuccess(true);
+    		j.setMsg("导出成功！");
+    		return j;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg("导出论文管理记录失败！失败信息："+e.getMessage());
+		}
+			return j;
+    }
+
+	/**
+	 * 导入Excel数据
+
+	 */
+	@ResponseBody
+	@RequiresPermissions("papermanage:paper:import")
+    @RequestMapping(value = "import")
+   	public AjaxJson importFile(@RequestParam("file")MultipartFile file, HttpServletResponse response, HttpServletRequest request) {
+		AjaxJson j = new AjaxJson();
+		try {
+			int successNum = 0;
+			int failureNum = 0;
+			StringBuilder failureMsg = new StringBuilder();
+			ImportExcel ei = new ImportExcel(file, 1, 0);
+			List<PaperImport> list = ei.getDataList(PaperImport.class);
+			String preId = System.currentTimeMillis()+"";
+			for (PaperImport paperImport : list){
+				try{
+					Paper paper = new Paper();
+					String paperId = preId+String.format("%05d", successNum);
+					paper.setLWBH(paperId);
+					paper.setBeginCreateDate(paperImport.getBeginCreateDate());
+					paper.setCreateBy(paperImport.getCreateBy());
+					paper.setCreateDate(paperImport.getCreateDate());
+					paper.setCurrentUser(paperImport.getCurrentUser());
+					paper.setDataScope(paperImport.getDataScope());
+					paper.setDelFlag(paperImport.getDelFlag());
+					paper.setEndCreateDate(paperImport.getEndCreateDate());
+					paper.setIdType("UUID");
+					paper.setIsNewRecord(false);
+					paper.setLWLXDM(paperImport.getLWLXDM());
+					paper.setLWMC(paperImport.getLWMC());
+					paper.setLWZTDM(paperImport.getLWZTDM());
+					paper.setPage(paperImport.getPage());
+					paper.setUpdateBy(paperImport.getUpdateBy());
+					paper.setId("");
+					paper.setUpdateDate(paperImport.getUpdateDate());
+					StudentManage XSXH = new StudentManage();
+					XSXH.setXsxh(paperImport.getXSXH());
+					paper.setXSXH(XSXH);
+					paperService.save(paper);
+					successNum++;
+				}catch(ConstraintViolationException ex){
+					ex.printStackTrace();
+					failureNum++;
+				}catch (Exception ex) {
+					ex.printStackTrace();
+					failureNum++;
+				}
+			}
+			if (failureNum>0){
+				failureMsg.insert(0, "，失败 "+failureNum+" 条论文管理记录。");
+			}
+			j.setMsg( "已成功导入 "+successNum+" 条论文管理记录"+failureMsg);
+		} catch (Exception e) {
+			e.printStackTrace();
+			j.setSuccess(false);
+			j.setMsg("导入论文管理失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+	
+	/**
+	 * 下载导入论文管理数据模板
+	 */
+	@ResponseBody
+	@RequiresPermissions("papermanage:paper:import")
+    @RequestMapping(value = "import/template")
+     public AjaxJson importFileTemplate(HttpServletResponse response) {
+		AjaxJson j = new AjaxJson();
+		try {
+            String fileName = "论文管理数据导入模板.xlsx";
+    		List<Paper> list = Lists.newArrayList(); 
+    		new ExportExcel("论文管理数据", Paper.class, 1).setDataList(list).write(response, fileName).dispose();
+    		return null;
+		} catch (Exception e) {
+			j.setSuccess(false);
+			j.setMsg( "导入模板下载失败！失败信息："+e.getMessage());
+		}
+		return j;
+    }
+}

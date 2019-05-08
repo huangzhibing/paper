@@ -275,5 +275,7 @@
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-redis:1.7.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-keyvalue:1.1.2.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.data:spring-data-commons:1.12.2.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: com.itextpdf:itextpdf:5.5.11" level="project" />
+    <orderEntry type="library" name="Maven: com.itextpdf:itext-asian:5.2.0" level="project" />
   </component>
 </module>

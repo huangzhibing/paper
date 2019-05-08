@@ -22,53 +22,6 @@
 		<div class="accordion-inner">
 			<form:form id="searchForm" modelAttribute="paper" class="form form-horizontal well clearfix">
 			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<label class="label-item single-overflow pull-left" title="创建者：">创建者：</label>
-				<form:input path="createBy.id" htmlEscape="false" maxlength="64"  class=" form-control"/>
-			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
-				 <div class="form-group">
-					<label class="label-item single-overflow pull-left" title="创建时间：">&nbsp;创建时间：</label>
-					<div class="col-xs-12">
-						   <div class="col-xs-12 col-sm-5">
-					        	  <div class='input-group date' id='beginCreateDate' style="left: -10px;" >
-					                   <input type='text'  name="beginCreateDate" class="form-control"  />
-					                   <span class="input-group-addon">
-					                       <span class="glyphicon glyphicon-calendar"></span>
-					                   </span>
-					             </div>	
-					        </div>
-					        <div class="col-xs-12 col-sm-1">
-					        		~
-					       	</div>
-					        <div class="col-xs-12 col-sm-5">
-					          	<div class='input-group date' id='endCreateDate' style="left: -10px;" >
-					                   <input type='text'  name="endCreateDate" class="form-control" />
-					                   <span class="input-group-addon">
-					                       <span class="glyphicon glyphicon-calendar"></span>
-					                   </span>
-					           	</div>	
-					        </div>
-					</div>
-				</div>
-			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<label class="label-item single-overflow pull-left" title="更新者：">更新者：</label>
-				<form:input path="updateBy.id" htmlEscape="false" maxlength="64"  class=" form-control"/>
-			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<div class="form-group">
-					<label class="label-item single-overflow pull-left" title="更新时间：">&nbsp;更新时间：</label>
-					<div class="col-xs-12">
-						<div class='input-group date' id='updateDate' >
-			                   <input type='text'  name="updateDate" class="form-control"  />
-			                   <span class="input-group-addon">
-			                       <span class="glyphicon glyphicon-calendar"></span>
-			                   </span>
-			            </div>	
-					</div>
-				</div>
-			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="论文题目：">论文题目：</label>
 				<form:input path="LWMC" htmlEscape="false" maxlength="200"  class=" form-control"/>
 			</div>
@@ -104,9 +57,13 @@
 	<!-- 工具栏 -->
 	<div id="toolbar">
 			<shiro:hasPermission name="papermanage:paper:export">
+				<button id="exportPdf" class="btn btn-primary">
+					<i class="fa fa-file-pdf-o"></i> 生成批阅书
+				</button>
 	        		<button id="export" class="btn btn-warning">
 					<i class="fa fa-file-excel-o"></i> 导出
 				</button>
+
 			 </shiro:hasPermission>
 	</div>
 

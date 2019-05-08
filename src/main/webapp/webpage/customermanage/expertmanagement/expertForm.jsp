@@ -76,6 +76,30 @@
 						<form:input path="YE" htmlEscape="false"    class="form-control required"/>
 					</div>
 				</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label"><font color="red">*</font>评审次数：</label>
+				<div class="col-sm-10">
+					<form:input path="pscs" htmlEscape="false"    class="form-control required"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">身份证：</label>
+				<div class="col-sm-10">
+					<form:input path="sfzh" htmlEscape="false"    class="form-control"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">开户行：</label>
+				<div class="col-sm-10">
+					<form:input path="khh" htmlEscape="false"    class="form-control"/>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">银行卡号：</label>
+				<div class="col-sm-10">
+					<form:input path="yhkh" htmlEscape="false"    class="form-control"/>
+				</div>
+			</div>
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>专家类型：</label>
 					<div class="col-sm-10">

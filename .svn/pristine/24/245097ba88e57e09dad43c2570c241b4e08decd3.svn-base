@@ -1,0 +1,258 @@
+package com.hqu.modules.reviewsearch.entity;
+
+import com.jeeplus.core.persistence.DataEntity;
+
+public class ReviewSearch extends DataEntity<ReviewSearch> {
+    private String readerName;
+    private String professionalTitle;
+    private String major;
+    private String company;
+    private String code;
+    private String phone;
+    private String Email;
+    private String number;
+    private String paperName;
+    private String papername1;
+    private String college;
+    private String stuMajor;
+    private String stuName;
+    private int year;
+    private int month;
+    private int day;
+    private Double score1;
+    private Double score2;
+    private Double score3;
+    private Double score4;
+    private Double score5;
+    private Double score6;
+    private Double score7;
+    private String check1;
+    private String check2;
+    private String check3;
+    private String check4;
+    private String advise;
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        this.day = day;
+    }
+
+    public Double getScore1() {
+        return score1;
+    }
+
+    public void setScore1(Double score1) {
+        this.score1 = score1;
+    }
+
+    public Double getScore2() {
+        return score2;
+    }
+
+    public void setScore2(Double score2) {
+        this.score2 = score2;
+    }
+
+    public Double getScore3() {
+        return score3;
+    }
+
+    public void setScore3(Double score3) {
+        this.score3 = score3;
+    }
+
+    public Double getScore4() {
+        return score4;
+    }
+
+    public void setScore4(Double score4) {
+        this.score4 = score4;
+    }
+
+    public Double getScore5() {
+        return score5;
+    }
+
+    public void setScore5(Double score5) {
+        this.score5 = score5;
+    }
+
+    public Double getScore6() {
+        return score6;
+    }
+
+    public void setScore6(Double score6) {
+        this.score6 = score6;
+    }
+
+    public Double getScore7() {
+        return score7;
+    }
+
+    public void setScore7(Double score7) {
+        this.score7 = score7;
+    }
+
+    public String getCheck1() {
+        return check1;
+    }
+
+    public void setCheck1(String check1) {
+        this.check1 = check1;
+    }
+
+    public String getCheck2() {
+        return check2;
+    }
+
+    public void setCheck2(String check2) {
+        this.check2 = check2;
+    }
+
+    public String getCheck3() {
+        return check3;
+    }
+
+    public void setCheck3(String check3) {
+        this.check3 = check3;
+    }
+
+    public String getCheck4() {
+        return check4;
+    }
+
+    public void setCheck4(String check4) {
+        this.check4 = check4;
+    }
+
+    public String getAdvise() {
+        return advise;
+    }
+
+    public void setAdvise(String advise) {
+        this.advise = advise;
+    }
+
+    public String getReaderName() {
+        return readerName;
+    }
+
+    public void setReaderName(String readerName) {
+        this.readerName = readerName;
+    }
+
+    public String getProfessionalTitle() {
+        return professionalTitle;
+    }
+
+    public void setProfessionalTitle(String professionalTitle) {
+        this.professionalTitle = professionalTitle;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return Email;
+    }
+
+    public void setEmail(String email) {
+        Email = email;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getPaperName() {
+        return paperName;
+    }
+
+    public void setPaperName(String paperName) {
+        this.paperName = paperName;
+    }
+
+    public String getPapername1() {
+        return papername1;
+    }
+
+    public void setPapername1(String papername1) {
+        this.papername1 = papername1;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public String getStuMajor() {
+        return stuMajor;
+    }
+
+    public void setStuMajor(String stuMajor) {
+        this.stuMajor = stuMajor;
+    }
+
+    public String getStuName() {
+        return stuName;
+    }
+
+    public void setStuName(String stuName) {
+        this.stuName = stuName;
+    }
+}

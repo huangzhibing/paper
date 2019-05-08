@@ -43,14 +43,65 @@
             var pieChart = echarts.init(document.getElementById('pieGraph'));
             var lineChart = echarts.init(document.getElementById('lineGraph'));
             jp.get("${ctx}/numericalstatement/expert_count/bar?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (barOption) {
-                barChart.setOption(barOption);
+                jp.get("${ctx}/numericalstatement/expert_count/data",function (data) {
+                    barOption.xAxis[0].data=data.map(function (item) {
+                        return item['gxmc']
+                    })
+                    barOption.series[1].data=data.map(function(item){
+                        return item['num']
+                    })
+                    jp.get("${ctx}/numericalstatement/expert_count/data?zjzt=0",function (data2) {
+                        barOption.series[0].data=data2.map(function(item){
+                            return item['num']
+                        })
+                        barChart.setOption(barOption)
+                    });
+                })
             });
             jp.get("${ctx}/numericalstatement/expert_count/line?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (lineOption) {
-                lineChart.setOption(lineOption);
+                jp.get("${ctx}/numericalstatement/expert_count/data",function (data) {
+                    lineOption.xAxis[0].data=data.map(function (item) {
+                        return item['gxmc']
+                    })
+                    lineOption.series[1].data=data.map(function(item){
+                        return item['num']
+                    })
+                    jp.get("${ctx}/numericalstatement/expert_count/data?zjzt=0",function (data2) {
+                        lineOption.series[0].data=data2.map(function(item){
+                            return item['num']
+                        })
+                        lineChart.setOption(lineOption)
+                    });
+                })
             });
-            jp.get("${ctx}/numericalstatement/expert_count/pie?beginDate="+beginDate+"&endDate="+endDate+"&zjlxdm="+zjlxdm+"&zjztdm="+zjztdm+"&xbdm="+xbdm+"&flag="+flag,function (pieOption) {
-                pieChart.setOption(pieOption);
+            jp.get("${ctx}/numericalstatement/expert_count/data",function (data) {
+                data=data.map(function(item){
+                    var buff={};
+                    buff['name']=item['gxmc']
+                    buff['value']=item['num']
+                    return buff;
+                })
+                pieOption = {
+                    title: {
+                        text: '高校专家分布情况',//主标题文本，支持\n换行
+                        left: 'center',//离容器左侧的距离
+                        top: 'top'//距离容器上测的距离
+                    },
+                    tooltip : {
+                        trigger: 'item',
+                        formatter: "{b} : {c} ({d}%)"
+                    },
+                    series: [
+                        {
+                            type: 'pie',//每个系列，通过type决定自己的系列型号
+                            data: data
+                        }
+                    ]
+                }
+                pieChart.setOption(pieOption)
             });
+
+
 
 
         }

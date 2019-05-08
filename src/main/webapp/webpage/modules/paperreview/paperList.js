@@ -176,8 +176,16 @@ $(document).ready(function() {
 		        formatter:function(value, row , index){
 		        	return jp.getDictLabel(${fns:toJson(fns:getDictList('T_PaperType_C'))}, value, "-");
 		        }
-		       
+
 		    }
+                   ,{
+                       field: 'lw.lwwj',
+                       title: '论文文件',
+                       sortable: true,
+					   visible:false,
+                       sortName: 'lw.lwwj'
+
+                   }
 		     ]
 		
 		});
@@ -279,7 +287,18 @@ $(document).ready(function() {
   function add(){
 		jp.go("${ctx}/paperReview/review/form/add");
 	}
-
+function downloadPaper(){
+    lwwj = $.map($("#paperTable").bootstrapTable('getSelections'), function (row) {
+        return row.lw.lwwj
+    });
+    console.log(lwwj)
+    if(lwwj != ""){
+        window.open(lwwj);
+        window.close();
+    }else {
+        jp.warning("论文附件为空！");
+    }
+}
   function edit(id){
 	  if(id == undefined){
 		  id = getIdSelections();

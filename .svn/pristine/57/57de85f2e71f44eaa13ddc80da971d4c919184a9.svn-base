@@ -1,0 +1,39 @@
+package com.hqu.modules.reviewsearch.service;
+
+import com.hqu.modules.papermanage.entity.Paper;
+import com.hqu.modules.papermanage.service.PaperService;
+import com.hqu.modules.reviewsearch.entity.ReviewSearch;
+import com.hqu.modules.reviewsearch.mapper.ReviewSearchMapper;
+import com.jeeplus.common.utils.StringUtils;
+import com.jeeplus.core.service.CrudService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
+public class ReviewSearchService extends CrudService<ReviewSearchMapper, ReviewSearch> {
+
+    @Autowired
+    public PaperService paperService;
+    public ReviewSearch bookInfo(String num){
+        ReviewSearch reviewSearch = new ReviewSearch();
+        reviewSearch = mapper.bookInfo(num);
+        Paper paper = paperService.get(num);
+        if(paper.getXSXH() != null){
+            if(StringUtils.isNotBlank(paper.getXSXH().getXsxm())) {
+                reviewSearch.setStuName(paper.getXSXH().getXsxm());
+                if(paper.getXSXH().getSpecialityManage() != null){
+                    if(StringUtils.isNotBlank(paper.getXSXH().getSpecialityManage().getZymc())){
+                        reviewSearch.setStuMajor(paper.getXSXH().getSpecialityManage().getZymc());
+                    }
+                }else {
+                    reviewSearch.setStuMajor(null);
+                }
+            }
+        }else {
+            reviewSearch.setStuName(null);
+        }
+        return reviewSearch;
+    }
+}

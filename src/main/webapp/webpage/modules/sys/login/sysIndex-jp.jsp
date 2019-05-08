@@ -343,7 +343,7 @@
 	</div>
 
 	<div class="footer">
-		<div class="pull-left"><a href="http://www.jeeplus.org">http://www.jeeplus.org</a> &copy; 2015-2025</div>
+		<div class="pull-left"><a href="http://www.hqu.edu.cn/">华侨大学</a> &copy; 2015-2025</div>
 	</div>
 
 </section>

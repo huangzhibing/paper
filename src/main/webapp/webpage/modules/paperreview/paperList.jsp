@@ -111,7 +111,11 @@
 	            	<i class="glyphicon glyphicon-edit"></i> 评审
 	        	</button>
 			</shiro:hasPermission>
-			
+		<shiro:hasPermission name="order:order:edit">
+			<button id="view" class="btn btn-default" disabled onclick="downloadPaper()">
+				<i class="glyphicon glyphicon-view"></i> 下载论文
+			</button>
+		</shiro:hasPermission>
 		<%--<shiro:hasPermission name="review:paper:view">--%>
            <%--<button id="view" class="btn btn-default" disabled onclick="view()">--%>
                <%--<i class="fa fa-search-plus"></i> 撤回--%>

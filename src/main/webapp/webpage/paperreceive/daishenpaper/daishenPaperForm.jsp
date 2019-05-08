@@ -67,7 +67,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label"><font color="red">*</font>论文摘要：</label>
 					<div class="col-sm-10">
-						<form:textarea path="lwzy" rows="12" readonly="true" class="form-control required"/>
+						<form:textarea path="lwzy" rows="12"  disabled='true' readonly="true" class="form-control required"/>
 					</div>
 				</div>
 
